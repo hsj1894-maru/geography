@@ -209,11 +209,8 @@
 
           <!-- Right: Case Reference Image -->
           <div class="w-full lg:w-72 shrink-0">
-            <div class="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-video lg:aspect-4/3 shadow-xs">
-              <img id="caseImage" src="" alt="사례 참고 사진" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-2.5">
-                <span id="caseImageCaption" class="text-xs text-white/90 font-medium truncate drop-shadow-sm">교사 제공 참고 사진</span>
-              </div>
+            <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-video lg:aspect-4/3 shadow-xs">
+              <img id="caseImage" src="" alt="사례 참고 사진" class="w-full h-full object-cover transition duration-300 hover:scale-105" />
             </div>
           </div>
 
@@ -742,10 +739,10 @@
         </div>
         <div class="space-y-1">
           <h4 class="font-bold text-slate-800 text-base">교사 인증 비밀번호 입력</h4>
-          <p class="text-xs text-slate-500">수업 사례 수정 및 데이터 관리를 위해 비밀번호를 입력해 주세요.<br><span class="text-indigo-600 font-medium">(초기 비밀번호: 1234)</span></p>
+          <p class="text-xs text-slate-500">수업 사례 수정 및 데이터 관리를 위해 비밀번호를 입력해 주세요.<br><span class="text-indigo-600 font-medium"></span></p>
         </div>
         <div class="max-w-xs mx-auto space-y-2">
-          <input type="password" id="teacherPasswordInput" placeholder="비밀번호 입력 (기본: 1234)" 
+          <input type="password" id="teacherPasswordInput" placeholder="비밀번호 입력" 
             onkeydown="if(event.key === 'Enter') verifyTeacherPassword()"
             class="w-full text-center px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-indigo-500 focus:ring-2 focus:ring-indigo-100 transition tracking-widest" />
           <p id="passwordErrorMsg" class="hidden text-xs text-rose-500 font-medium">비밀번호가 일치하지 않습니다. 다시 입력해 주세요.</p>
@@ -938,7 +935,7 @@
         summary: "아스팔트와 고층 빌딩이 밀집한 도심부는 인공열과 복사열로 열섬 현상이 극심합니다. 특히 에어컨과 환기 시설이 부족한 돈의동·창신동 등 도심 쪽방촌 거주민은 폭염 재난의 직격탄을 맞고 있습니다.",
         newsUrl: "https://www.khan.co.kr",
         imageUrl: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=800&q=80",
-        imageCaption: "도심 고층 빌딩 숲과 대비되는 밀집 노후 주거지역",
+        imageCaption: "",
         theme: {
           badgeBg: "bg-amber-100",
           badgeText: "text-amber-800",
@@ -958,7 +955,7 @@
         summary: "집중호우 시 불투수면(콘크리트, 아스팔트) 비율이 70%를 넘는 도시 지역은 빗물이 흡수되지 못하고 저지대로 집중됩니다. 하수관거 용량 부족과 반지하라는 열악한 주거 공간이 겹쳐 인명 피해가 취약계층에 집중되었습니다.",
         newsUrl: "https://www.hani.co.kr",
         imageUrl: "https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80",
-        imageCaption: "집중호우 시 침수 위험이 높은 도심 저지대와 빗물 유입",
+        imageCaption: "",
         theme: {
           badgeBg: "bg-sky-100",
           badgeText: "text-sky-800",
@@ -978,7 +975,7 @@
         summary: "서울과 경기 등 대도시에서 배출되는 생활 폐기물이 특정 지역인 인천 서구 백석동 매립지로 집중되며 수십 년간 악취, 미세먼지, 침출수 피해를 입혀왔습니다. 폐기물 발생지 책임 원칙과 혐오시설 입지의 공간적 정의가 핵심 쟁점입니다.",
         newsUrl: "https://www.yna.co.kr",
         imageUrl: "https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80",
-        imageCaption: "대도시 폐기물 처리와 광역 쓰레기 매립지 현장",
+        imageCaption: "",
         theme: {
           badgeBg: "bg-emerald-100",
           badgeText: "text-emerald-800",
@@ -998,7 +995,7 @@
         summary: "수도권의 막대한 전력 소비를 충당하기 위해 발전소는 땅값이 저렴하고 해안가 냉각수 공급이 용이한 충남 해안에 집중 건설되었습니다. 송전탑 건설 갈등과 발전소 미세먼지·중금속 배출로 인한 지역 주민 건강 피해가 심각합니다.",
         newsUrl: "https://www.kbs.co.kr",
         imageUrl: "https://images.unsplash.com/photo-1569060424558-8686f376f927?auto=format&fit=crop&w=800&q=80",
-        imageCaption: "대규모 화력발전소 굴뚝과 고압 송전선로",
+        imageCaption: "",
         theme: {
           badgeBg: "bg-violet-100",
           badgeText: "text-violet-800",
@@ -1018,7 +1015,7 @@
         summary: "상류 지역(양평, 가평, 춘천 등)은 서울 등 하류 천만 시민의 깨끗한 수돗물(팔당호)을 위해 토지 이용과 개발을 엄격히 규제받고 있습니다. 반면 하류 도시민이 소비하고 배출한 플라스틱과 합성세제는 하천 생태계와 상·하류 모두의 수질을 위협하고 있습니다.",
         newsUrl: "https://imnews.imbc.com",
         imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
-        imageCaption: "도심 하천 수계와 수자원 보호 생태계",
+        imageCaption: "",
         theme: {
           badgeBg: "bg-teal-100",
           badgeText: "text-teal-800",
@@ -1444,7 +1441,6 @@
           caseImgEl.src = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80";
         }
       }
-      document.getElementById("caseImageCaption").textContent = c.imageCaption || "사례 현장 참고 사진";
 
       // 2) Form Fields populate from studentData
       document.getElementById("input_causes_natural").value = data.causes_natural || "";
