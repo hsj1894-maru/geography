@@ -1,0 +1,1964 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>도시 환경 문제와 공간 정의 탐구 - 고등학교 지리·사회과 협력 탐구</title>
+  <meta name="description" content="고등학교 지리·사회 수업용 모둠별 도시 환경 문제(폭염, 홍수, 쓰레기, 대기·수질오염) 분석 및 공간 정의 탐구, 교사용 실시간 발표 대시보드 웹 앱" />
+  <meta property="og:title" content="도시 환경 문제와 공간 정의 탐구" />
+  <meta property="og:description" content="고등학교 지리·사회과 모둠별 협력 탐구 및 공간 정의(Spatial Justice) 분석 대시보드" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Pretendard Web Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#F0F9FF',
+              100: '#E0F2FE',
+              500: '#0284C7',
+              600: '#0369A1',
+              700: '#075985',
+              900: '#0C4A6E',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Custom scrollbar for edutech look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-sky-200">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Brand / Title -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-sm shadow-sky-200">
+            <i data-lucide="scale" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold text-slate-900 tracking-tight">도시 문제와 공간 정의 탐구</h1>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100 hidden sm:inline-block">도시의 미래 탐구</span>
+            </div>
+            <p class="text-xs text-slate-500">모둠별 도시의 환경 문제와 재난 불평등 분석 & 공간 정의(Spatial Justice) 실천 방안</p>
+          </div>
+        </div>
+
+        <!-- Header Actions: Timer, Presentation Mode, Teacher Settings -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          
+          <!-- Classroom Timer -->
+          <div class="hidden md:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700">
+            <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
+            <span id="timerDisplay" class="font-mono text-sm font-bold text-slate-800">15:00</span>
+            <div class="flex items-center gap-1 border-l border-slate-300 pl-2 ml-1">
+              <button onclick="toggleTimer()" id="timerToggleBtn" class="p-1 hover:text-sky-600 rounded transition" title="시작/정지">
+                <i data-lucide="play" id="timerIcon" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="resetTimer()" class="p-1 hover:text-rose-600 rounded transition" title="리셋">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Download Standalone HTML Button -->
+          <button onclick="downloadSingleHtml()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="USB 저장 및 오프라인 수업용 단일 HTML 다운로드">
+            <i data-lucide="download" class="w-4 h-4 text-slate-500"></i>
+            <span>HTML 다운로드</span>
+          </button>
+
+          <!-- Teacher Admin Modal Trigger -->
+          <button onclick="openTeacherModal()" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="교사용 사례 수정 및 수업 관리">
+            <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
+            <span class="hidden sm:inline">교사 관리</span>
+          </button>
+
+          <!-- Mode Switch Button: Student Inquiry vs Presentation Mode -->
+          <button id="viewToggleBtn" onclick="togglePresentationMode()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-xs">
+            <i data-lucide="presentation" class="w-4 h-4"></i>
+            <span id="viewToggleText">교사용 발표 모드</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- GROUP NAVIGATION TABS (visible in Student Mode) -->
+      <div id="groupTabsBar" class="flex items-center gap-1.5 sm:gap-2 py-2.5 overflow-x-auto border-t border-slate-100 scrollbar-none">
+        <span class="text-xs font-bold text-slate-500 mr-1 flex items-center gap-1 whitespace-nowrap">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i> 모둠 선택:
+        </span>
+        <!-- Tabs generated dynamically via JS -->
+        <div id="groupTabsContainer" class="flex items-center gap-1.5 sm:gap-2"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ==================== VIEW 1: STUDENT INQUIRY MODE ==================== -->
+    <div id="studentView" class="space-y-6">
+
+      <!-- TOP: TEACHER CASE BRIEFING CARD (모둠별 사례 카드 영역) -->
+      <section id="caseBriefingSection" class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs transition-all">
+        <!-- Colored group top accent bar -->
+        <div id="caseAccentBar" class="absolute top-0 left-0 right-0 h-1.5 bg-amber-500"></div>
+
+        <div class="flex flex-col lg:flex-row gap-6 items-start justify-between">
+          
+          <!-- Left: Case Details -->
+          <div class="flex-1 space-y-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="caseGroupBadge" class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                1모둠 탐구 과제
+              </span>
+              <span id="caseTopicBadge" class="text-xs font-semibold text-slate-500">
+                폭염 (도심 열섬 현상과 쪽방촌 온열질환 불평등)
+              </span>
+            </div>
+
+            <!-- News Headline -->
+            <h2 id="caseHeadline" class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-snug">
+              "체감온도 45도 쪽방촌… 빌딩 숲 에어컨 실외기 열기에 숨막히는 에너지 취약계층"
+            </h2>
+
+            <!-- Key Statistic Box -->
+            <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div class="p-1.5 rounded-lg bg-rose-100 text-rose-600 mt-0.5">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-500">핵심 현황 및 통계 수치</div>
+                <p id="caseStats" class="text-sm font-semibold text-slate-800 mt-0.5 leading-relaxed">
+                  서울 도심(종로·중구)과 외곽(은평·관악) 낮 최고기온 격차 최대 4.2℃ / 쪽방촌 실내 최고온도 42.8℃, 거주민 65% 이상 기초수급·고령층
+                </p>
+              </div>
+            </div>
+
+            <!-- Detailed Case Summary -->
+            <p id="caseSummary" class="text-sm text-slate-600 leading-relaxed">
+              아스팔트와 고층 빌딩이 밀집한 도심부는 인공열과 복사열로 열섬 현상이 극심합니다. 특히 에어컨과 환기 시설이 부족한 돈의동·창신동 등 도심 쪽방촌 거주민은 폭염 재난의 직격탄을 맞고 있습니다.
+            </p>
+
+            <!-- External News Link & Help Pill -->
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <a id="caseNewsLink" href="https://www.khan.co.kr" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                <span>사례 뉴스 기사 원문 보기</span>
+              </a>
+              <span class="text-xs text-slate-500 flex items-center gap-1">
+                <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span>사례를 꼼꼼히 읽고 아래 6가지 탐구 항목을 분석해 보세요.</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Right: Case Reference Image -->
+          <div class="w-full lg:w-72 shrink-0">
+            <div class="relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-video lg:aspect-4/3 shadow-xs">
+              <img id="caseImage" src="" alt="사례 참고 사진" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-2.5">
+                <span id="caseImageCaption" class="text-xs text-white/90 font-medium truncate drop-shadow-sm">교사 제공 참고 사진</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- AUTO-SAVE STATUS & COMPLETION BAR -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-2xs">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span id="autoSaveIndicator" class="text-xs font-medium text-slate-600">실시간 자동 저장 켜짐 (내용 작성 시 자동 저장됩니다)</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <!-- Progress indicator -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-500 font-medium">탐구 완성도:</span>
+            <div class="w-28 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+              <div id="inquiryProgressBar" class="bg-indigo-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <span id="inquiryProgressPercent" class="text-xs font-bold text-indigo-700">0%</span>
+          </div>
+
+          <!-- Submit status toggle -->
+          <button id="submitToggleBtn" onclick="toggleSubmission()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-2xs bg-slate-100 text-slate-700 hover:bg-slate-200">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            <span id="submitStatusText">최종 제출하기</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- BOTTOM: STUDENT INQUIRY & INPUT FORM (학생 모둠 분석 및 입력 영역) -->
+      <div class="space-y-6">
+
+        <!-- GRID 1: 1) 발생 요인 분석 & 2) 공간 불평등 분석 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- 1) 발생 요인 분석 (자연적 vs 사회적 요인) -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold">1</div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">발생 요인 분석</h3>
+                <p class="text-xs text-slate-500">해당 환경 문제가 발생하게 된 배경 요인을 구분하여 분석하세요.</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>자연적 요인 (기후, 지형, 기온, 강수 등)</span>
+                  <span class="text-[11px] text-slate-400 font-normal">자연 환경적 특성</span>
+                </label>
+                <textarea id="input_causes_natural" rows="3" placeholder="예: 분지 지형으로 인한 열 축적, 여름철 고온다습한 북태평양 기단 영향 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition resize-none"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>사회·인위적 요인 (도시화, 산업, 건축 형태 등)</span>
+                  <span class="text-[11px] text-slate-400 font-normal">인간 활동 및 인프라 요인</span>
+                </label>
+                <textarea id="input_causes_social" rows="3" placeholder="예: 아스팔트 및 콘크리트 포장 증가, 에어컨 실외기 인공열 배출, 고층 빌딩으로 바람길 차단 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2) 공간 불평등 분석 (혜택 보는 지역/집단 vs 피해 입는 지역/집단) -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <div class="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-xs font-bold">2</div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">공간 불평등 분석</h3>
+                <p class="text-xs text-slate-500">환경 문제로 인해 혜택을 누리는 쪽과 피해를 입는 쪽의 공간적 격차를 비교하세요.</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-emerald-800 mb-1 flex items-center justify-between">
+                  <span class="flex items-center gap-1">
+                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    혜택을 보는 지역 및 집단
+                  </span>
+                  <span class="text-[11px] text-slate-400 font-normal">수혜 계층/지역</span>
+                </label>
+                <textarea id="input_inequality_beneficiary" rows="3" placeholder="예: 대형 냉방 시스템을 갖춘 상업 빌딩 이용자, 녹지 비율이 높은 부촌 주거지 주민 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition resize-none"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-rose-800 mb-1 flex items-center justify-between">
+                  <span class="flex items-center gap-1">
+                    <i data-lucide="arrow-down-right" class="w-3.5 h-3.5 text-rose-600"></i>
+                    피해를 입는 지역 및 집단
+                  </span>
+                  <span class="text-[11px] text-slate-400 font-normal">취약 계층/지역</span>
+                </label>
+                <textarea id="input_inequality_damaged" rows="3" placeholder="예: 단열과 에어컨이 부족한 도심 쪽방촌 고령 노인, 야외 노동자, 에너지 빈곤층 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 transition resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- GRID 2: 3) 해결 방안 제안 & 4) 실제로 적용되고 있는 사례 조사 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- 3) 해결 방안 제안 (정책적 vs 기술적 방안) -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">3</div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">해결 방안 제안 (공간 정의 관점)</h3>
+                <p class="text-xs text-slate-500">불평등을 해소하고 공간 정의를 실현할 제도와 기술적 해법을 제안하세요.</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>정책·제도적 방안 (법률, 조례, 복지 지원, 분배 정의 등)</span>
+                  <span class="text-[11px] text-slate-400 font-normal">제도적 대책</span>
+                </label>
+                <textarea id="input_solutions_policy" rows="3" placeholder="예: 기후 취약계층 에너지 바우처 확대, 기후동행쉼터 24시간 개방, 불평등 완화 도시계획 조례 제정 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition resize-none"></textarea>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>기술·공간적 방안 (친환경 인프라, 도시설계, 신기술 등)</span>
+                  <span class="text-[11px] text-slate-400 font-normal">공간 기술 대책</span>
+                </label>
+                <textarea id="input_solutions_tech" rows="3" placeholder="예: 옥상 쿨루프(Cool Roof) 시공 지원, 바람길 숲 조성, 도로 살수 시스템(클린로드) 확대 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition resize-none"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4) 실제로 적용되고 있는 사례 조사 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <div class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold">4</div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">실제로 적용되고 있는 사례 조사</h3>
+                <p class="text-xs text-slate-500">국내외에서 이 문제를 해결하기 위해 실제 시행 중인 정책이나 사례를 조사해 적어보세요.</p>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <textarea id="input_real_case_study" rows="7" placeholder="예시:&#10;• 서울시 동행식당 및 기후동행쉼터 사업: 쪽방촌 주민들이 무더위를 피하며 식사를 해결할 수 있는 지정 쉼터 운영&#10;• 프랑스 파리 '오아시스 학교 마당': 아스팔트 운동장을 자연 녹지와 투수 블록으로 개조해 도심 열섬 완화 및 지역 개방 쉼터로 활용" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition resize-none leading-relaxed"></textarea>
+              <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span>포털 사이트나 교육청 자료, 지자체 보도자료를 검색하여 작성하세요.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ROW 3: 5) 증거/참고 이미지 첨부 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">5</div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">증거 및 참고 이미지 첨부</h3>
+                <p class="text-xs text-slate-500">모둠 탐구에 활용할 현장 사진, 통계 그래프, 지도 캡처 등을 첨부하세요.</p>
+              </div>
+            </div>
+            <span class="text-xs text-slate-400">파일 업로드 또는 이미지 웹 주소(URL)</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+            
+            <!-- Upload Options -->
+            <div class="md:col-span-2 space-y-3">
+              <!-- File Drag & Drop / Button -->
+              <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-indigo-400 transition bg-slate-50/50">
+                <i data-lucide="image-plus" class="w-8 h-8 text-slate-400 mx-auto mb-2"></i>
+                <div class="text-xs text-slate-600 mb-1">
+                  <label for="evidenceFileInput" class="cursor-pointer text-indigo-600 font-bold hover:underline">
+                    컴퓨터에서 사진 선택
+                  </label>
+                  <span>또는 드래그 앤 드롭</span>
+                </div>
+                <p class="text-[11px] text-slate-400">PNG, JPG, WEBP 이미지 지원</p>
+                <input id="evidenceFileInput" type="file" accept="image/*" class="hidden" onchange="handleEvidenceFileUpload(event)" />
+              </div>
+
+              <!-- Or URL Input -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">또는 이미지 웹 주소(URL) 직접 입력</label>
+                <div class="flex gap-2">
+                  <input id="input_image_url" type="url" placeholder="https://example.com/photo.jpg" class="flex-1 text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition" />
+                  <button onclick="applyImageUrl()" class="px-3.5 py-2 text-xs font-semibold bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition">적용</button>
+                </div>
+              </div>
+
+              <!-- Image Caption -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">사진 설명 (캡션)</label>
+                <input id="input_image_caption" type="text" placeholder="예: 2024년 종로구 쪽방촌 실내 열화상 카메라 촬영 모습" class="w-full text-xs sm:text-sm px-3 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition" />
+              </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="space-y-2">
+              <span class="text-xs font-semibold text-slate-700 block">이미지 미리보기</span>
+              <div id="evidencePreviewContainer" class="relative rounded-xl border border-slate-200 bg-slate-100 aspect-video md:aspect-square flex items-center justify-center overflow-hidden">
+                <div id="evidenceEmptyState" class="text-center p-4">
+                  <i data-lucide="image" class="w-8 h-8 text-slate-300 mx-auto mb-1"></i>
+                  <span class="text-xs text-slate-400">첨부된 이미지가 없습니다</span>
+                </div>
+                <img id="evidencePreviewImg" src="" alt="첨부 이미지 미리보기" class="hidden w-full h-full object-cover" />
+                <button id="evidenceRemoveBtn" onclick="removeEvidenceImage()" class="hidden absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-rose-600 transition" title="사진 삭제">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ROW 4: 6) 공간 정의 한 줄 정리 (HIGHLIGHT QUOTE CARD) -->
+        <div class="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-sky-50/70 p-6 shadow-sm space-y-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shadow-xs">6</div>
+            <div>
+              <h3 class="text-base font-extrabold text-indigo-950">공간 정의(Spatial Justice) 한 줄 선언</h3>
+              <p class="text-xs text-indigo-700">탐구를 바탕으로 우리 모둠이 내린 공간 정의의 핵심 가치를 한 줄로 명쾌하게 정리하세요.</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-indigo-100 p-4 shadow-2xs">
+            <div class="text-xs font-bold text-indigo-500 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="quote" class="w-4 h-4 text-indigo-400"></i>
+              <span>모둠 철학 선언문</span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 text-base sm:text-lg font-bold text-slate-800">
+              <span class="whitespace-nowrap text-indigo-900 font-extrabold">“우리 모둠이 생각하는 공간 정의란</span>
+              <input id="input_spatial_justice_core" type="text" placeholder="사는 곳이나 소득에 상관없이 기후 재난으로부터 안전할 권리를 동등하게 누리는 것" class="flex-1 px-4 py-2.5 rounded-xl border-2 border-indigo-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 text-sm sm:text-base font-bold text-indigo-900 transition bg-indigo-50/30 placeholder:font-normal placeholder:text-slate-400" />
+              <span class="whitespace-nowrap text-indigo-900 font-extrabold">이다.”</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM ACTION BUTTONS -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-12 border-t border-slate-200">
+          <div class="text-xs text-slate-500 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            <span>모든 작성 내용은 웹 브라우저에 안전하게 보관되어 탭을 닫아도 복원됩니다.</span>
+          </div>
+
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <button onclick="clearCurrentGroupInputs()" class="flex-1 sm:flex-none px-4 py-2.5 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-xl transition">
+              현재 모둠 내용 비우기
+            </button>
+            <button id="finalSubmitBtn" onclick="toggleSubmission()" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              <span>최종 제출 및 발표 준비 완료</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ==================== VIEW 2: TEACHER PRESENTATION DASHBOARD ==================== -->
+    <div id="presentationView" class="hidden space-y-6">
+
+      <!-- PRESENTATION HEADER BANNER -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">
+              실시간 발표 대시보드
+            </span>
+            <span class="text-xs text-slate-400">대형 TV / 빔프로젝터 공개수업 모드</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">도시 환경 문제와 공간 정의 모둠별 탐구 발표</h2>
+          <p class="text-sm text-slate-300 max-w-2xl leading-relaxed">
+            모둠 카드를 클릭하면 대형 스크린 전용 전체화면 PPT 슬라이드로 전환됩니다. (키보드 좌우 화살표로 모둠 이동 가능)
+          </p>
+        </div>
+
+        <!-- Realtime submission counter -->
+        <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md px-5 py-4 rounded-xl border border-white/10">
+          <div class="text-center">
+            <div class="text-xs text-slate-300 font-medium">제출 완료</div>
+            <div id="presentSubmittedCount" class="text-2xl sm:text-3xl font-black text-emerald-400">0 / 5</div>
+          </div>
+          <div class="h-10 w-px bg-white/15"></div>
+          <div class="text-center">
+            <div class="text-xs text-slate-300 font-medium">전체 진행률</div>
+            <div id="presentAvgProgress" class="text-2xl sm:text-3xl font-black text-sky-400">0%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 GROUPS OVERVIEW CARDS GRID -->
+      <div id="presentationCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 5 Group cards dynamically rendered by JS -->
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==================== FULLSCREEN PPT PRESENTATION SLIDE MODAL ==================== -->
+  <div id="slideModal" class="fixed inset-0 z-50 hidden bg-slate-950/95 backdrop-blur-xl overflow-y-auto flex flex-col">
+    
+    <!-- Slide Top Control Bar -->
+    <div class="sticky top-0 z-10 bg-slate-900/90 border-b border-slate-800 px-6 py-3.5 flex items-center justify-between no-print">
+      <div class="flex items-center gap-3">
+        <span id="slideGroupBadge" class="px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-amber-500 text-white">
+          1모둠 발표 슬라이드
+        </span>
+        <span id="slideTopicTitle" class="text-sm sm:text-base font-semibold text-slate-200">
+          도심 열섬 현상과 폭염 불평등
+        </span>
+      </div>
+
+      <!-- Slide Navigation Controls -->
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-400 hidden sm:inline mr-2">키보드 [←] [→] [ESC] 지원</span>
+        
+        <button onclick="prevSlide()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition" title="이전 모둠 (좌측 화살표)">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <span id="slideIndexIndicator" class="text-xs font-mono font-bold text-slate-300 px-2">1 / 5</span>
+        <button onclick="nextSlide()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition" title="다음 모둠 (우측 화살표)">
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+
+        <div class="h-6 w-px bg-slate-700 mx-1"></div>
+
+        <button onclick="window.print()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition" title="슬라이드 인쇄 / PDF 저장">
+          <i data-lucide="printer" class="w-5 h-5"></i>
+        </button>
+        <button onclick="toggleFullscreen()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition" title="전체화면 전환">
+          <i data-lucide="maximize" class="w-5 h-5"></i>
+        </button>
+        <button onclick="closeSlideModal()" class="p-2 rounded-lg bg-rose-600/80 hover:bg-rose-600 text-white transition ml-1" title="닫기 (ESC)">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Slide Content Canvas -->
+    <div class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 flex flex-col justify-between space-y-6">
+      
+      <!-- Slide Header -->
+      <div class="space-y-2">
+        <div class="flex items-center gap-3">
+          <span id="slideSubmittedBadge" class="px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            제출 완료
+          </span>
+          <span id="slideSubTopic" class="text-xs font-medium text-slate-400">환경 문제 및 재난의 공간 정의적 고찰</span>
+        </div>
+        <h2 id="slideHeadline" class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+          "체감온도 45도 쪽방촌… 빌딩 숲 에어컨 실외기 열기에 숨막히는 에너지 취약계층"
+        </h2>
+      </div>
+
+      <!-- Slide Main 2-Column Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch flex-1">
+        
+        <!-- Left: Case Background & Images (4 cols) -->
+        <div class="lg:col-span-4 space-y-4 flex flex-col justify-between">
+          <!-- Stats & Background Box -->
+          <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <div class="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+              <span>핵심 통계 및 실태 현황</span>
+            </div>
+            <p id="slideStatsText" class="text-sm sm:text-base font-semibold text-slate-200 leading-snug">
+              서울 도심 낮 최고기온 격차 최대 4.2℃ / 쪽방촌 실내 최고온도 42.8℃
+            </p>
+            <div class="h-px bg-slate-800"></div>
+            <p id="slideSummaryText" class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              도심 열섬 현상과 고층 빌딩 인공열 배출이 쪽방촌 등 취약 거주지로 집중되는 불평등 실태.
+            </p>
+          </div>
+
+          <!-- Student Evidence Image Box -->
+          <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 space-y-2 flex-1 flex flex-col justify-end">
+            <div class="text-xs font-bold text-purple-400 flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <i data-lucide="image" class="w-4 h-4"></i>
+                <span>모둠 현장 증거 자료</span>
+              </span>
+              <span id="slideEvidenceCaption" class="text-[11px] text-slate-400 truncate max-w-[160px]"></span>
+            </div>
+            <div class="rounded-xl overflow-hidden bg-slate-950 aspect-video flex items-center justify-center border border-slate-800">
+              <img id="slideEvidenceImg" src="" alt="모둠 증거 사진" class="w-full h-full object-cover hidden" />
+              <div id="slideEvidencePlaceholder" class="text-center p-3 text-slate-600 text-xs">
+                첨부 사진 없음
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 4 Analytical Inquiry Columns (8 cols) -->
+        <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          
+          <!-- Box 1: 요인 분석 -->
+          <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-800">
+              <span class="w-6 h-6 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-bold">1</span>
+              <h4 class="text-sm font-bold text-slate-200">발생 요인 분석</h4>
+            </div>
+            <div class="space-y-2 text-xs sm:text-sm">
+              <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">자연적 요인:</span>
+                <p id="slideCauseNatural" class="text-slate-200 leading-relaxed bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 min-h-[50px]"></p>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">사회·인위적 요인:</span>
+                <p id="slideCauseSocial" class="text-slate-200 leading-relaxed bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 min-h-[50px]"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Box 2: 공간 불평등 분석 -->
+          <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-800">
+              <span class="w-6 h-6 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs font-bold">2</span>
+              <h4 class="text-sm font-bold text-slate-200">공간 불평등 비교</h4>
+            </div>
+            <div class="space-y-2 text-xs sm:text-sm">
+              <div>
+                <span class="text-xs font-bold text-emerald-400 block mb-0.5">혜택 누리는 집단/지역:</span>
+                <p id="slideIneqBeneficiary" class="text-emerald-100 leading-relaxed bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-900/40 min-h-[50px]"></p>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-rose-400 block mb-0.5">피해 입는 집단/지역:</span>
+                <p id="slideIneqDamaged" class="text-rose-100 leading-relaxed bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/40 min-h-[50px]"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Box 3: 해결 방안 제안 -->
+          <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-800">
+              <span class="w-6 h-6 rounded-md bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">3</span>
+              <h4 class="text-sm font-bold text-slate-200">공간 정의적 해결 방안</h4>
+            </div>
+            <div class="space-y-2 text-xs sm:text-sm">
+              <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">정책·제도적 방안:</span>
+                <p id="slideSolPolicy" class="text-slate-200 leading-relaxed bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 min-h-[50px]"></p>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-400 block mb-0.5">기술·공간적 방안:</span>
+                <p id="slideSolTech" class="text-slate-200 leading-relaxed bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 min-h-[50px]"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Box 4: 실제 적용 사례 -->
+          <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 space-y-3">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-800">
+              <span class="w-6 h-6 rounded-md bg-teal-500/20 text-teal-400 flex items-center justify-center text-xs font-bold">4</span>
+              <h4 class="text-sm font-bold text-slate-200">실제 적용 사례 조사</h4>
+            </div>
+            <div class="text-xs sm:text-sm">
+              <p id="slideRealCase" class="text-slate-200 leading-relaxed bg-slate-950/60 p-3 rounded-lg border border-slate-800/80 min-h-[135px] whitespace-pre-line"></p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Slide Bottom: Spatial Justice Manifesto Quote Banner -->
+      <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-0.5 rounded-2xl shadow-xl">
+        <div class="bg-slate-950 rounded-[15px] p-4 sm:p-6 text-center space-y-1">
+          <div class="text-xs font-bold uppercase tracking-widest text-amber-400 flex items-center justify-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>모둠 선언: 우리가 생각하는 공간 정의</span>
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <p id="slideManifestoText" class="text-lg sm:text-2xl font-black text-white tracking-tight leading-relaxed">
+            “우리 모둠이 생각하는 공간 정의란 [ ... ]이다.”
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ==================== TEACHER ADMIN / EDIT MODAL ==================== -->
+  <div id="teacherModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs overflow-y-auto flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full border border-slate-200 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center text-white font-bold">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold">교사 전용 수업 관리 및 사례 편집</h3>
+            <p class="text-xs text-slate-400">모둠별 제시 사례, 뉴스 링크, 참고 이미지 URL 편집 및 수업 보조 도구</p>
+          </div>
+        </div>
+        <button onclick="closeTeacherModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+        
+        <!-- Password Check Section (if locked) -->
+        <div id="teacherLockScreen" class="py-6 text-center space-y-4">
+          <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-600">
+            <i data-lucide="key-round" class="w-6 h-6"></i>
+          </div>
+          <div class="max-w-xs mx-auto space-y-2">
+            <h4 class="text-sm font-bold text-slate-800">교사 비밀번호 입력</h4>
+            <p class="text-xs text-slate-500">학생들의 실수 수정을 방지하기 위해 비밀번호를 입력해 주세요. (초기 비밀번호: 1234)</p>
+            <div class="flex gap-2 pt-2">
+              <input id="teacherPasswordInput" type="password" placeholder="비밀번호 (기본: 1234)" class="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100" onkeydown="if(event.key==='Enter') verifyTeacherPassword()" />
+              <button onclick="verifyTeacherPassword()" class="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition">확인</button>
+            </div>
+            <p id="passwordErrorMsg" class="text-xs text-rose-600 hidden font-medium">비밀번호가 올바르지 않습니다.</p>
+          </div>
+        </div>
+
+        <!-- Teacher Controls Screen (after unlocked) -->
+        <div id="teacherUnlockedScreen" class="hidden space-y-6">
+
+          <!-- Quick Actions Bar for Teachers -->
+          <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-xs font-bold text-indigo-900">수업 진행용 빠른 버튼</div>
+              <div class="text-[11px] text-indigo-700">시연용 예시 답안을 채우거나 학생 작성 내용을 초기화할 수 있습니다.</div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="loadSampleStudentAnswers()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition" title="5개 모둠 전체에 고품질 모범 학생 답안 자동 채우기">
+                💡 예시 학생 답안 자동 채우기
+              </button>
+              <button onclick="resetAllStudentAnswers()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-700 border border-slate-200 transition">
+                🗑 학생 작성 내용 전체 초기화
+              </button>
+            </div>
+          </div>
+
+          <!-- Select which group to edit -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-2">편집할 모둠 사례 선택:</label>
+            <div class="grid grid-cols-5 gap-2" id="teacherGroupSelectTabs">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Selected group edit form -->
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="teacherEditingGroupLabel" class="text-xs font-bold text-slate-800">1모둠 사례 편집 중</span>
+              <button onclick="resetCurrentCaseToDefault()" class="text-xs text-slate-500 hover:text-rose-600 underline">이 모둠 초기 사례로 되돌리기</button>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">모둠 주제 명칭</label>
+              <input id="edit_case_topic" type="text" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">뉴스 헤드라인 (제목)</label>
+              <input id="edit_case_headline" type="text" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">핵심 통계 및 실태 수치</label>
+              <input id="edit_case_stats" type="text" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">배경 설명 요약 본문</label>
+              <textarea id="edit_case_summary" rows="3" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white resize-none"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">관련 뉴스 원문 URL</label>
+                <input id="edit_case_news_url" type="url" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">참고 사진 이미지 URL</label>
+                <input id="edit_case_image_url" type="url" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
+              </div>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+              <button onclick="saveTeacherCaseChanges()" class="px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition">
+                사례 수정사항 저장 및 즉시 반영
+              </button>
+            </div>
+          </div>
+
+          <!-- Backup & Restore Data (JSON) -->
+          <div class="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <span class="text-slate-500 font-medium">수업 데이터 백업 및 관리:</span>
+            <div class="flex items-center gap-2">
+              <button onclick="exportDataJson()" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition">
+                JSON 파일로 내보내기
+              </button>
+              <label class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 cursor-pointer transition">
+                JSON 파일 불러오기
+                <input type="file" accept=".json" class="hidden" onchange="importDataJson(event)" />
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+        <button onclick="closeTeacherModal()" class="px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- EMBEDDED VANILLA JAVASCRIPT APPLICATION -->
+  <script>
+    /**
+     * URBAN ENVIRONMENTAL ISSUES & SPATIAL JUSTICE APP
+     * High School Geography / Social Studies Open Class Web Application
+     */
+
+    // 1. Initial Curated Case Data (5 Groups)
+    const DEFAULT_CASES = [
+      {
+        id: 1,
+        groupNumber: 1,
+        topic: "폭염 (도심 열섬 현상과 쪽방촌 온열질환 불평등)",
+        shortTitle: "1모둠: 폭염과 쪽방촌",
+        headline: "“체감온도 45도 쪽방촌… 빌딩 숲 에어컨 실외기 열기에 숨막히는 에너지 취약계층”",
+        stats: "서울 도심(종로·중구)과 외곽(은평·관악) 낮 최고기온 격차 최대 4.2℃ / 쪽방촌 실내 최고온도 42.8℃, 거주민 65% 이상 기초수급·고령층",
+        summary: "아스팔트와 고층 빌딩이 밀집한 도심부는 인공열과 복사열로 열섬 현상이 극심합니다. 특히 에어컨과 환기 시설이 부족한 돈의동·창신동 등 도심 쪽방촌 거주민은 폭염 재난의 직격탄을 맞고 있습니다.",
+        newsUrl: "https://www.khan.co.kr",
+        imageUrl: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=800&q=80",
+        imageCaption: "도심 고층 빌딩 숲과 대비되는 밀집 노후 주거지역",
+        theme: {
+          badgeBg: "bg-amber-100",
+          badgeText: "text-amber-800",
+          border: "border-amber-300",
+          accentBar: "bg-amber-500",
+          cardBorder: "hover:border-amber-400",
+          lightBg: "bg-amber-50/50"
+        }
+      },
+      {
+        id: 2,
+        groupNumber: 2,
+        topic: "도시 홍수 (강남·관악 침수 피해와 자치구별/반지하 피해 격차)",
+        shortTitle: "2모둠: 도시 홍수와 반지하",
+        headline: "“물바다 된 강남역과 관악구 신림동 반지하 참사… 도시 배수 시설과 주거 환경의 불평등”",
+        stats: "2022년 수도권 집중호우 시 시간당 141.5mm 기록 / 서울 반지하 가구 20만여 곳 중 침수 취약 85% 집중, 강남권 빗물저류배수시설 설치율 대비 강북·관악 저류용량 부족",
+        summary: "집중호우 시 불투수면(콘크리트, 아스팔트) 비율이 70%를 넘는 도시 지역은 빗물이 흡수되지 못하고 저지대로 집중됩니다. 하수관거 용량 부족과 반지하라는 열악한 주거 공간이 겹쳐 인명 피해가 취약계층에 집중되었습니다.",
+        newsUrl: "https://www.hani.co.kr",
+        imageUrl: "https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80",
+        imageCaption: "집중호우 시 침수 위험이 높은 도심 저지대와 빗물 유입",
+        theme: {
+          badgeBg: "bg-sky-100",
+          badgeText: "text-sky-800",
+          border: "border-sky-300",
+          accentBar: "bg-sky-500",
+          cardBorder: "hover:border-sky-400",
+          lightBg: "bg-sky-50/50"
+        }
+      },
+      {
+        id: 3,
+        groupNumber: 3,
+        topic: "쓰레기 문제 (수도권 매립지 갈등과 인천 지역 피해 불평등)",
+        shortTitle: "3모둠: 쓰레기 매립지 갈등",
+        headline: "“서울·경기가 버린 쓰레기 30년 넘게 떠안은 인천 서구… 2025년 매립지 종료 갈등과 환경 정의”",
+        stats: "수도권 매립지 반입 쓰레기 비율: 서울 35%, 경기 45%, 인천 20% (인천 주민 악취·분진 민원 연간 수천 건 및 지가 하락 피해)",
+        summary: "서울과 경기 등 대도시에서 배출되는 생활 폐기물이 특정 지역인 인천 서구 백석동 매립지로 집중되며 수십 년간 악취, 미세먼지, 침출수 피해를 입혀왔습니다. 폐기물 발생지 책임 원칙과 혐오시설 입지의 공간적 정의가 핵심 쟁점입니다.",
+        newsUrl: "https://www.yna.co.kr",
+        imageUrl: "https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80",
+        imageCaption: "대도시 폐기물 처리와 광역 쓰레기 매립지 현장",
+        theme: {
+          badgeBg: "bg-emerald-100",
+          badgeText: "text-emerald-800",
+          border: "border-emerald-300",
+          accentBar: "bg-emerald-500",
+          cardBorder: "hover:border-emerald-400",
+          lightBg: "bg-emerald-50/50"
+        }
+      },
+      {
+        id: 4,
+        groupNumber: 4,
+        topic: "대기 오염 (충남 석탄화력발전소와 수도권 전력 소비 불평등)",
+        shortTitle: "4모둠: 화력발전소와 대기오염",
+        headline: "“전력은 서울·수도권이 쓰고, 미세먼지와 온실가스는 충남 주민이 마신다”",
+        stats: "전국 석탄화력발전소 58기 중 절반(29기)이 충남에 집중 / 충남 전력 자립률 220% 이상 (잉여 전력 대부분 수도권 송전), 대기오염물질 배출량 전국 최상위",
+        summary: "수도권의 막대한 전력 소비를 충당하기 위해 발전소는 땅값이 저렴하고 해안가 냉각수 공급이 용이한 충남 해안에 집중 건설되었습니다. 송전탑 건설 갈등과 발전소 미세먼지·중금속 배출로 인한 지역 주민 건강 피해가 심각합니다.",
+        newsUrl: "https://www.kbs.co.kr",
+        imageUrl: "https://images.unsplash.com/photo-1569060424558-8686f376f927?auto=format&fit=crop&w=800&q=80",
+        imageCaption: "대규모 화력발전소 굴뚝과 고압 송전선로",
+        theme: {
+          badgeBg: "bg-violet-100",
+          badgeText: "text-violet-800",
+          border: "border-violet-300",
+          accentBar: "bg-violet-500",
+          cardBorder: "hover:border-violet-400",
+          lightBg: "bg-violet-50/50"
+        }
+      },
+      {
+        id: 5,
+        groupNumber: 5,
+        topic: "수질 오염 (한강 수계 미세플라스틱 오염과 상·하류 불평등)",
+        shortTitle: "5모둠: 한강 수계와 수질오염",
+        headline: "“하류 대도시 식수를 위해 상류 주민은 수십 년간 재산권 규제… 도시가 쏟아내는 미세플라스틱의 역습”",
+        stats: "한강 하류(서울·경기) 미세플라스틱 농도 m³당 수만 개 검출 / 상류 팔당 상수원보호구역 4개 시·군 주민 40년 이상 공장·축사 증축 및 개발 엄격 제한",
+        summary: "상류 지역(양평, 가평, 춘천 등)은 서울 등 하류 천만 시민의 깨끗한 수돗물(팔당호)을 위해 토지 이용과 개발을 엄격히 규제받고 있습니다. 반면 하류 도시민이 소비하고 배출한 플라스틱과 합성세제는 하천 생태계와 상·하류 모두의 수질을 위협하고 있습니다.",
+        newsUrl: "https://imnews.imbc.com",
+        imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+        imageCaption: "도심 하천 수계와 수자원 보호 생태계",
+        theme: {
+          badgeBg: "bg-teal-100",
+          badgeText: "text-teal-800",
+          border: "border-teal-300",
+          accentBar: "bg-teal-500",
+          cardBorder: "hover:border-teal-400",
+          lightBg: "bg-teal-50/50"
+        }
+      }
+    ];
+
+    // Sample Student Answers for Testing/Class Demonstration
+    const SAMPLE_STUDENT_ANSWERS = {
+      1: {
+        causes_natural: "여름철 북태평양 고기압의 확장으로 인한 극심한 고온다습 기후와 맑은 날씨에 따른 강한 일사량, 도심 분지 지형으로 인한 대기 정체 현상.",
+        causes_social: "고층 빌딩 밀집으로 인한 자연풍 바람길 차단, 아스팔트 및 콘크리트 포장의 높은 태양 복사열 흡수, 대형 건물과 차량의 에어컨 실외기 인공 배출열.",
+        inequality_beneficiary: "시원한 중앙 냉방 시스템을 갖춘 도심 대기업 오피스 근무자, 숲세권 고소득 아파트 거주민.",
+        inequality_damaged: "창문과 환기구가 좁고 단열재가 부실한 돈의동·창신동 쪽방촌 독거노인, 기초생활수급자, 냉방비 부담이 큰 에너지 빈곤층 및 건설 야외 노동자.",
+        solutions_policy: "기후재난 취약계층 에너지 바우처 지원 단가 대폭 인상, 쪽방촌 인근 24시간 안심 야간 쉼터 의무화, 도심 불평등 완화형 녹지 총량제 조례 제정.",
+        solutions_tech: "쪽방촌 지붕 쿨루프(Cool Roof, 차열 도료) 전면 무상 시공, 취약 가구 이동식 창문형 에어컨 설치 지원, 골목길 미세안개 쿨링포그 및 지하수 활용 클린로드 살수 시스템 확대.",
+        real_case_study: "1. 서울시 동행식당 및 기후동행쉼터: 폭염기 쪽방촌 주민들이 식사와 냉방을 동시에 해결할 수 있도록 동네 식당을 쉼터로 연계 지정 운영함.\n2. 프랑스 파리 오아시스 학교 마당 프로젝트: 아스팔트 운동장을 자연 흙과 숲, 분수로 리모델링하여 도심 열섬 완화 및 지역 주민에게 쉼터 개방.",
+        evidence_image: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80",
+        evidence_caption: "도심 쪽방 밀집 지역 골목과 쿨링포그 설치 현장 조사",
+        spatial_justice_core: "사는 곳의 형태나 소득 격차에 상관없이, 기후 재난의 위협으로부터 생명과 안전을 동등하게 보장받는 권리",
+        is_submitted: true
+      },
+      2: {
+        causes_natural: "기후변화로 인한 국지성 극한 호우(시간당 100mm 이상 폭우)의 빈도 급증, 관악산 경사면을 따라 빗물이 저지대로 빠르게 집중 유입되는 지형적 특성.",
+        causes_social: "도시 개발에 따른 아스팔트 포장으로 불투수층 비율이 70% 이상 증가하여 토양의 자연 빗물 흡수 능력 상실, 하수관로 용량 초과 및 주거비가 저렴한 반지하 취약 주거 형성.",
+        inequality_beneficiary: "배수 인프라와 빗물저류조가 우선 정비된 고지대 고급 주거단지 및 대규모 배수펌프장 인근 안전 구역 거주자.",
+        inequality_damaged: "신림동·대림동 등 침수 취약 저지대 반지하 가구 거주민(저소득층, 장애인, 독거노인), 배수구가 역류해 가재도구와 생명을 위협받는 취약계층.",
+        solutions_policy: "반지하 주거의 단계적 주거용도 금지 및 공공임대주택 우선 이주 보증금 지원, 침수 위험 반지하 가구 차수판(물막이판) 및 역류방지밸브 100% 무상 설치 의무화.",
+        solutions_tech: "도심 저지대 대심도 빗물저류배수터널(지하 40~50m) 조기 완공, 투수성 보도블록 전면 교체, 빗물 정원(Rain Garden) 및 옥상 녹화 확대.",
+        real_case_study: "1. 서울 양천구 신월 대심도 빗물터널: 지하 40m에 거대한 배수터널을 뚫어 2022년 수도권 폭우 당시 침수 피해 0건을 기록하며 효과 입증.\n2. 네덜란드 로테르담 물광장(Water Plaza): 평소에는 청소년 농구장과 광장으로 쓰이다가 폭우 시 빗물을 가두는 임시 저류지로 변신하는 다목적 방재 공간.",
+        evidence_image: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=600&q=80",
+        evidence_caption: "저지대 침수 방지를 위한 주택 물막이판 설치 현장",
+        spatial_justice_core: "누구도 가난하다는 이유로 물에 잠기는 위험한 주거 공간에 방치되지 않도록 국가가 안전한 공간을 책임지는 것",
+        is_submitted: true
+      },
+      3: {
+        causes_natural: "인천 서구 해안가의 편서풍 기류로 인해 매립지 악취와 먼지가 동쪽 내륙 주거지로 확산되기 쉬운 기상 조건.",
+        causes_social: "서울·경기 등 거대 수도권의 2600만 인구가 배출하는 막대한 1회용품과 쓰레기를 감당하기 위해, 1992년 인천 해안 갯벌을 매립하여 광역 매립지를 집중 조성함.",
+        inequality_beneficiary: "쓰레기를 대량 소비·배출하면서도 정작 혐오시설은 자기 동네에 두지 않는 서울·경기 대도시 주민(NIMBY 수혜).",
+        inequality_damaged: "수십 년간 쓰레기 수송 차량 소음, 악취, 미세먼지, 침출수 악취와 부동산 가치 하락 피해를 온몸으로 감내해 온 인천 서구 백석동·검단 주민들.",
+        solutions_policy: "'폐기물 발생지 처리 원칙'의 강력한 법제화(각 지자체는 자기 지역 쓰레기를 자체 소각·처리), 반입 수수료 인상 및 피해 지역 주민복지기금 현실화, 수도권 대체 매립지 신속 선정.",
+        solutions_tech: "직매립 금지 및 전처리 친환경 자원순환 복합에너지타운 구축, 폐플라스틱 열분해 유류화 기술, 매립장 상부 친환경 드림파크 생태공원화 및 수소연료전지 발전소 도입.",
+        real_case_study: "1. 인천 수도권매립지 드림파크 야생화단지: 매립이 완료된 구역을 주민 휴식용 생태공원과 국화축제장으로 복원하여 문화 공간으로 환원.\n2. 독일 프라이부르크시 제로웨이스트 순환경제: 철저한 분리배출과 바이오가스화 시설로 매립률을 거의 0%로 줄인 자원순환 도시 모델.",
+        evidence_image: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80",
+        evidence_caption: "친환경 자원순환 복합시설과 분리배출 재활용 센터",
+        spatial_justice_core: "자신이 발생시킨 오염과 쓰레기의 책임을 특정 약자나 타 지역에 일방적으로 떠넘기지 않는 발생지 책임주의",
+        is_submitted: true
+      },
+      4: {
+        causes_natural: "충남 서해안 지역의 조석 간만의 차와 풍부한 바닷물(발전기 냉각수 조달 용이), 북서 계절풍을 타고 오염물질이 한반도 내륙으로 퍼지는 기상 특성.",
+        causes_social: "수도권에 전기를 공급하기 위해 땅값이 싸고 규제가 덜한 충남 해안가에 석탄화력발전소를 집중 배치하고, 수백 기의 초고압 송전탑을 농촌 지역에 건설함.",
+        inequality_beneficiary: "정작 발전소와 송전탑의 환경 피해는 겪지 않으면서 저렴하고 풍부한 전력을 풍족하게 누리는 서울 강남 및 수도권 대도시 빌딩과 산업단지.",
+        inequality_damaged: "발전소 주변 충남 당진·보령·태안 주민들의 미세먼지, 벤젠 등 발암물질 흡입으로 인한 폐암 발병률 증가, 765kV 초고압 송전탑 전자파 피해와 지가 하락.",
+        solutions_policy: "'지역별 차등 전기요금제' 즉각 도입(발전소 인근 주민은 저렴하게, 먼 거리 수도권 송전 지역은 송전 비용을 가산해 부과), 노후 석탄화력발전소 조기 폐쇄 및 정의로운 전환(Just Transition) 지원 기금 조성.",
+        solutions_tech: "석탄발전을 해상풍력 및 영농형 태양광, 수소 혼소 발전으로 전환, 발전소 배출가스 탄소 포집·저장(CCUS) 설비 장착, 수도권 도심 내 분산형 연료전지 발전 확충.",
+        real_case_study: "1. 대한민국 '분산에너지 활성화 특별법' 시행: 발전소 위치와 송전 거리에 따라 전기요금을 다르게 책정할 수 있는 법적 근거가 마련되어 에너지 정의 실현의 발판 구축.\n2. 독일 루르(Ruhr) 지방 탄광의 친환경 에너지 전환: 노후 화력발전소를 복합문화공간 및 태양광 연구단지로 탈바꿈하며 노동자와 주민의 피해를 보상한 정의로운 전환 사례.",
+        evidence_image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=600&q=80",
+        evidence_caption: "친환경 풍력·태양광 발전으로의 분산형 에너지 전환",
+        spatial_justice_core: "전기를 소비하는 곳과 생산의 고통을 짊어지는 곳이 일치해야 하며, 지역의 희생 위에 대도시의 번영을 쌓지 않는 것",
+        is_submitted: true
+      },
+      5: {
+        causes_natural: "남한강과 북한강이 양평 양수리(두물머리)에서 만나 팔당호로 합류하는 한강 수계의 유역 지형, 완만한 하류의 유속으로 인한 부유물 침적.",
+        causes_social: "하류 대도시의 천만 인구가 배출하는 세탁수 합성섬유, 플라스틱 쓰레기 등 미세플라스틱이 하수처리장을 통과해 방류됨. 반면 상류는 식수 공급을 이유로 40년간 건축과 개발을 원천 봉쇄당함.",
+        inequality_beneficiary: "상류 주민들의 일방적인 재산권 희생 덕분에 깨끗한 상수원을 공급받으면서도 정작 자신들의 플라스틱 소비와 오염 배출에는 무감각한 하류 대도시 주민들.",
+        inequality_damaged: "상수원보호구역으로 묶여 카페 하나, 주택 증축 하나 마음대로 못 하고 가축 사육까지 금지당해 경제적 낙후를 겪는 양평·가평·남양주·광주 등 상류 주민들.",
+        solutions_policy: "하류 지자체 수도요금에 부과되는 '물이용부담금'을 인상하여 상류 주민 직접 보상 및 친환경 생태 농업 지원으로 전액 전환, 상류 지역의 합리적 친환경 생태관광 규제 완화.",
+        solutions_tech: "하류 공공하수처리장에 5μm 이하 미세플라스틱을 99% 걸러내는 초정밀 멤브레인 분리막 필터 의무 설치, 하천 주변 인공 습지와 식생 여과대 조성, 미세플라스틱 저감 세탁기 필터 보급.",
+        real_case_study: "1. 미국 뉴욕시와 캐츠킬(Catskill) 유역 상생 협약: 뉴욕시는 수조 원짜리 정수장 대신 상류 캐츠킬 숲과 농가에 보상금을 지불해 친환경 농업을 유도, 하류는 맑은 물을 얻고 상류는 소득을 보장받음.\n2. 프랑스 에비앙(Evian)의 상류 농가 보조금 프로그램: 생수 수원지를 지키기 위해 상류 농민들이 화학비료를 쓰지 않도록 에비앙 사가 퇴비와 무농약 기술을 전액 지원하는 상생 모델.",
+        evidence_image: "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=600&q=80",
+        evidence_caption: "상수원 보호구역 생태 습지와 맑은 수계 보전 활동",
+        spatial_justice_core: "하류의 맑은 물 한 잔 뒤에는 상류 주민들의 오랜 양보가 있음을 기억하고, 권리와 혜택을 호혜적으로 나누는 연대의 정신",
+        is_submitted: true
+      }
+    };
+
+    // 2. State Management via LocalStorage
+    const STORAGE_KEY_DATA = "spatial_justice_student_data_v1";
+    const STORAGE_KEY_CASES = "spatial_justice_cases_v1";
+    const STORAGE_KEY_PASS = "spatial_justice_teacher_pass_v1";
+
+    let cases = [];
+    let studentData = {};
+    let currentGroupId = 1;
+    let isPresentationMode = false;
+    let currentSlideIndex = 1;
+    let isTeacherUnlocked = false;
+    let timerInterval = null;
+    let timerSeconds = 15 * 60; // default 15 min
+    let isTimerRunning = false;
+
+    // Load initial cases and student inquiry data
+    function initData() {
+      // 1. Cases
+      const savedCases = localStorage.getItem(STORAGE_KEY_CASES);
+      if (savedCases) {
+        try {
+          cases = JSON.parse(savedCases);
+        } catch (e) {
+          cases = JSON.parse(JSON.stringify(DEFAULT_CASES));
+        }
+      } else {
+        cases = JSON.parse(JSON.stringify(DEFAULT_CASES));
+        localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
+      }
+
+      // 2. Student Data
+      const savedData = localStorage.getItem(STORAGE_KEY_DATA);
+      if (savedData) {
+        try {
+          studentData = JSON.parse(savedData);
+        } catch (e) {
+          studentData = {};
+        }
+      } else {
+        studentData = {};
+      }
+
+      // Ensure all 5 groups exist in studentData
+      for (let i = 1; i <= 5; i++) {
+        if (!studentData[i]) {
+          studentData[i] = {
+            causes_natural: "",
+            causes_social: "",
+            inequality_beneficiary: "",
+            inequality_damaged: "",
+            solutions_policy: "",
+            solutions_tech: "",
+            real_case_study: "",
+            evidence_image: "",
+            evidence_caption: "",
+            spatial_justice_core: "",
+            is_submitted: false
+          };
+        }
+      }
+    }
+
+    // Save studentData to LocalStorage and trigger visual update
+    function saveStudentData(showToastFeedback = false) {
+      localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(studentData));
+      updateProgressIndicators();
+      
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('ko-KR', { hour12: false });
+      const indicator = document.getElementById("autoSaveIndicator");
+      if (indicator) {
+        indicator.innerHTML = `<span class="text-emerald-600 font-semibold">✓ 방금 자동 저장됨 (${timeStr})</span>`;
+      }
+      if (showToastFeedback) {
+        showToast("저장되었습니다.", "success");
+      }
+    }
+
+    // 3. Render Navigation Tabs
+    function renderGroupTabs() {
+      const container = document.getElementById("groupTabsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      cases.forEach(c => {
+        const isActive = c.id === currentGroupId;
+        const groupData = studentData[c.id] || {};
+        const isSubmitted = !!groupData.is_submitted;
+
+        const btn = document.createElement("button");
+        btn.onclick = () => switchGroup(c.id);
+        btn.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition border whitespace-nowrap ${
+          isActive 
+            ? "bg-slate-900 text-white border-slate-900 shadow-2xs" 
+            : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+        }`;
+
+        let statusDot = isSubmitted 
+          ? `<span class="w-2 h-2 rounded-full bg-emerald-400"></span>` 
+          : `<span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-slate-400' : 'bg-slate-300'}"></span>`;
+
+        btn.innerHTML = `
+          ${statusDot}
+          <span>${c.shortTitle}</span>
+          ${isSubmitted ? `<span class="text-[10px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold">완료</span>` : ''}
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    // 4. Switch Current Active Group (Student View)
+    function switchGroup(groupId) {
+      currentGroupId = groupId;
+      renderGroupTabs();
+      renderCurrentGroupView();
+    }
+
+    // 5. Render Current Group View Details & Form Fields
+    function renderCurrentGroupView() {
+      const c = cases.find(item => item.id === currentGroupId) || cases[0];
+      const data = studentData[currentGroupId] || {};
+
+      // 1) Case Briefing Section
+      document.getElementById("caseAccentBar").className = `absolute top-0 left-0 right-0 h-1.5 ${c.theme.accentBar}`;
+      document.getElementById("caseGroupBadge").className = `px-2.5 py-1 rounded-md text-xs font-bold ${c.theme.badgeBg} ${c.theme.badgeText} border border-current/20`;
+      document.getElementById("caseGroupBadge").textContent = `${c.groupNumber}모둠 탐구 과제`;
+      document.getElementById("caseTopicBadge").textContent = c.topic;
+      document.getElementById("caseHeadline").textContent = c.headline;
+      document.getElementById("caseStats").textContent = c.stats;
+      document.getElementById("caseSummary").textContent = c.summary;
+      document.getElementById("caseNewsLink").href = c.newsUrl;
+
+      const caseImgEl = document.getElementById("caseImage");
+      caseImgEl.src = c.imageUrl;
+      document.getElementById("caseImageCaption").textContent = c.imageCaption || "교사 제공 참고 사진";
+
+      // 2) Form Fields populate from studentData
+      document.getElementById("input_causes_natural").value = data.causes_natural || "";
+      document.getElementById("input_causes_social").value = data.causes_social || "";
+      document.getElementById("input_inequality_beneficiary").value = data.inequality_beneficiary || "";
+      document.getElementById("input_inequality_damaged").value = data.inequality_damaged || "";
+      document.getElementById("input_solutions_policy").value = data.solutions_policy || "";
+      document.getElementById("input_solutions_tech").value = data.solutions_tech || "";
+      document.getElementById("input_real_case_study").value = data.real_case_study || "";
+      document.getElementById("input_image_url").value = data.evidence_image?.startsWith("http") ? data.evidence_image : "";
+      document.getElementById("input_image_caption").value = data.evidence_caption || "";
+      document.getElementById("input_spatial_justice_core").value = data.spatial_justice_core || "";
+
+      // 3) Evidence Image Preview
+      updateEvidencePreview(data.evidence_image);
+
+      // 4) Submission state UI
+      updateSubmissionUi(data.is_submitted);
+
+      // 5) Update progress bar
+      updateProgressIndicators();
+
+      // Refresh icons
+      lucide.createIcons();
+    }
+
+    // Update the image preview box
+    function updateEvidencePreview(imgSrc) {
+      const previewImg = document.getElementById("evidencePreviewImg");
+      const emptyState = document.getElementById("evidenceEmptyState");
+      const removeBtn = document.getElementById("evidenceRemoveBtn");
+
+      if (imgSrc && imgSrc.length > 5) {
+        previewImg.src = imgSrc;
+        previewImg.classList.remove("hidden");
+        emptyState.classList.add("hidden");
+        removeBtn.classList.remove("hidden");
+      } else {
+        previewImg.src = "";
+        previewImg.classList.add("hidden");
+        emptyState.classList.remove("hidden");
+        removeBtn.classList.add("hidden");
+      }
+    }
+
+    // Toggle submission status for current group
+    function toggleSubmission() {
+      const current = studentData[currentGroupId] || {};
+      const newStatus = !current.is_submitted;
+      current.is_submitted = newStatus;
+      studentData[currentGroupId] = current;
+
+      saveStudentData();
+      renderGroupTabs();
+      updateSubmissionUi(newStatus);
+
+      if (newStatus) {
+        playSubmitSound();
+        showToast(`${currentGroupId}모둠 탐구 내용이 최종 제출되었습니다! 교사용 발표 대시보드에 즉시 반영됩니다.`, "success");
+      } else {
+        showToast(`${currentGroupId}모둠 제출이 취소되어 수정 모드로 전환되었습니다.`, "info");
+      }
+    }
+
+    function updateSubmissionUi(isSubmitted) {
+      const toggleBtn = document.getElementById("submitToggleBtn");
+      const submitText = document.getElementById("submitStatusText");
+      const finalBtn = document.getElementById("finalSubmitBtn");
+
+      if (isSubmitted) {
+        toggleBtn.className = "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-2xs bg-emerald-100 text-emerald-800 border border-emerald-300";
+        submitText.innerHTML = "제출 완료됨 (수정 시 클릭)";
+        finalBtn.className = "flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold text-slate-700 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded-xl shadow-xs transition";
+        finalBtn.innerHTML = `<i data-lucide="check-check" class="w-4 h-4 text-emerald-700"></i><span>제출 완료 (다시 수정하기)</span>`;
+      } else {
+        toggleBtn.className = "inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow-2xs bg-slate-100 text-slate-700 hover:bg-slate-200";
+        submitText.innerHTML = "최종 제출하기";
+        finalBtn.className = "flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm transition";
+        finalBtn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>최종 제출 및 발표 준비 완료</span>`;
+      }
+      lucide.createIcons();
+    }
+
+    // 6. Calculate Completion Percentage for a group
+    function calculateGroupProgress(groupData) {
+      if (!groupData) return 0;
+      const fields = [
+        "causes_natural",
+        "causes_social",
+        "inequality_beneficiary",
+        "inequality_damaged",
+        "solutions_policy",
+        "solutions_tech",
+        "real_case_study",
+        "spatial_justice_core"
+      ];
+      let filledCount = 0;
+      fields.forEach(f => {
+        if (groupData[f] && groupData[f].trim().length > 3) {
+          filledCount++;
+        }
+      });
+      // Give bonus if evidence image is attached
+      if (groupData.evidence_image && groupData.evidence_image.length > 5) {
+        filledCount += 1;
+      }
+      const totalRequired = 9;
+      return Math.min(100, Math.round((filledCount / totalRequired) * 100));
+    }
+
+    function updateProgressIndicators() {
+      const current = studentData[currentGroupId] || {};
+      const pct = calculateGroupProgress(current);
+
+      const bar = document.getElementById("inquiryProgressBar");
+      const label = document.getElementById("inquiryProgressPercent");
+      if (bar) bar.style.width = `${pct}%`;
+      if (label) label.textContent = `${pct}%`;
+
+      // Update presentation stats if present view is active
+      let totalSubmitted = 0;
+      let totalPctSum = 0;
+      for (let i = 1; i <= 5; i++) {
+        const d = studentData[i] || {};
+        if (d.is_submitted) totalSubmitted++;
+        totalPctSum += calculateGroupProgress(d);
+      }
+      const avgPct = Math.round(totalPctSum / 5);
+
+      const presSubEl = document.getElementById("presentSubmittedCount");
+      const presAvgEl = document.getElementById("presentAvgProgress");
+      if (presSubEl) presSubEl.textContent = `${totalSubmitted} / 5`;
+      if (presAvgEl) presAvgEl.textContent = `${avgPct}%`;
+    }
+
+    // 7. Auto-save Input Listeners Setup
+    function attachInputListeners() {
+      const fieldIds = [
+        "input_causes_natural",
+        "input_causes_social",
+        "input_inequality_beneficiary",
+        "input_inequality_damaged",
+        "input_solutions_policy",
+        "input_solutions_tech",
+        "input_real_case_study",
+        "input_image_caption",
+        "input_spatial_justice_core"
+      ];
+
+      fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        // Key map to studentData property
+        const propName = id.replace("input_", "");
+
+        el.addEventListener("input", () => {
+          if (!studentData[currentGroupId]) studentData[currentGroupId] = {};
+          studentData[currentGroupId][propName] = el.value;
+          saveStudentData(false);
+        });
+      });
+    }
+
+    // 8. Handle Evidence Image Upload (File or URL)
+    function handleEvidenceFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        showToast("이미지 파일만 업로드할 수 있습니다.", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64Data = event.target.result;
+        if (!studentData[currentGroupId]) studentData[currentGroupId] = {};
+        studentData[currentGroupId].evidence_image = base64Data;
+        updateEvidencePreview(base64Data);
+        saveStudentData(true);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyImageUrl() {
+      const urlInput = document.getElementById("input_image_url");
+      const url = urlInput.value.trim();
+      if (!url) {
+        showToast("이미지 URL을 입력해 주세요.", "info");
+        return;
+      }
+      if (!studentData[currentGroupId]) studentData[currentGroupId] = {};
+      studentData[currentGroupId].evidence_image = url;
+      updateEvidencePreview(url);
+      saveStudentData(true);
+    }
+
+    function removeEvidenceImage() {
+      if (!studentData[currentGroupId]) return;
+      studentData[currentGroupId].evidence_image = "";
+      document.getElementById("input_image_url").value = "";
+      updateEvidencePreview("");
+      saveStudentData(true);
+    }
+
+    function clearCurrentGroupInputs() {
+      if (!confirm(`정말로 ${currentGroupId}모둠의 작성 내용을 모두 비우시겠습니까?`)) return;
+
+      studentData[currentGroupId] = {
+        causes_natural: "",
+        causes_social: "",
+        inequality_beneficiary: "",
+        inequality_damaged: "",
+        solutions_policy: "",
+        solutions_tech: "",
+        real_case_study: "",
+        evidence_image: "",
+        evidence_caption: "",
+        spatial_justice_core: "",
+        is_submitted: false
+      };
+      saveStudentData();
+      renderCurrentGroupView();
+      renderGroupTabs();
+      showToast(`${currentGroupId}모둠의 내용이 비워졌습니다.`, "info");
+    }
+
+    // 9. PRESENTATION DASHBOARD (View 2)
+    function togglePresentationMode() {
+      isPresentationMode = !isPresentationMode;
+      const studentView = document.getElementById("studentView");
+      const presView = document.getElementById("presentationView");
+      const groupTabsBar = document.getElementById("groupTabsBar");
+      const btn = document.getElementById("viewToggleBtn");
+      const text = document.getElementById("viewToggleText");
+
+      if (isPresentationMode) {
+        studentView.classList.add("hidden");
+        presView.classList.remove("hidden");
+        groupTabsBar.classList.add("hidden");
+        btn.className = "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-slate-800 hover:bg-slate-900 rounded-lg transition shadow-xs";
+        btn.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4"></i><span>학생 탐구 모드로 복귀</span>`;
+        renderPresentationDashboardCards();
+      } else {
+        studentView.classList.remove("hidden");
+        presView.classList.add("hidden");
+        groupTabsBar.classList.remove("hidden");
+        btn.className = "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-xs";
+        btn.innerHTML = `<i data-lucide="presentation" class="w-4 h-4"></i><span>교사용 발표 모드</span>`;
+        renderGroupTabs();
+        renderCurrentGroupView();
+      }
+      lucide.createIcons();
+    }
+
+    function renderPresentationDashboardCards() {
+      const grid = document.getElementById("presentationCardsGrid");
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      cases.forEach(c => {
+        const d = studentData[c.id] || {};
+        const pct = calculateGroupProgress(d);
+        const isSubmitted = !!d.is_submitted;
+
+        const card = document.createElement("div");
+        card.className = `bg-white rounded-2xl border-2 ${isSubmitted ? 'border-emerald-300' : 'border-slate-200'} p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer group`;
+        card.onclick = () => openSlideModal(c.id);
+
+        const manifestoText = d.spatial_justice_core && d.spatial_justice_core.trim().length > 0 
+          ? `“${d.spatial_justice_core}”` 
+          : `<span class="text-slate-400 italic font-normal">아직 작성된 공간 정의 선언문이 없습니다.</span>`;
+
+        card.innerHTML = `
+          <div class="space-y-3">
+            <!-- Card Header -->
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-md text-xs font-extrabold ${c.theme.badgeBg} ${c.theme.badgeText}">
+                ${c.groupNumber}모둠
+              </span>
+              <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                isSubmitted ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+              }">
+                ${isSubmitted ? '✓ 최종 제출 완료' : '작성 중'}
+              </span>
+            </div>
+
+            <!-- Title & Topic -->
+            <div>
+              <h3 class="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition leading-snug">
+                ${c.topic}
+              </h3>
+              <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">${c.headline}</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span>탐구 완성도</span>
+                <span class="font-bold ${pct >= 80 ? 'text-emerald-600' : 'text-slate-700'}">${pct}%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-indigo-600 h-full rounded-full transition-all" style="width: ${pct}%"></div>
+              </div>
+            </div>
+
+            <!-- Spatial Justice Core Quote Snippet -->
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs">
+              <div class="text-[10px] uppercase font-bold text-slate-400 mb-1 flex items-center gap-1">
+                <i data-lucide="quote" class="w-3 h-3 text-indigo-400"></i>
+                <span>모둠이 정의한 공간 정의:</span>
+              </div>
+              <p class="text-slate-800 font-bold line-clamp-2 leading-relaxed">
+                ${manifestoText}
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Button -->
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600 group-hover:translate-x-0.5 transition">
+            <span>대형 화면 슬라이드 발표</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    // 10. PPT PRESENTATION SLIDE MODAL
+    function openSlideModal(groupId) {
+      currentSlideIndex = groupId;
+      renderSlideModalContent();
+      document.getElementById("slideModal").classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+      lucide.createIcons();
+    }
+
+    function closeSlideModal() {
+      document.getElementById("slideModal").classList.add("hidden");
+      document.body.style.overflow = "";
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function renderSlideModalContent() {
+      const c = cases.find(item => item.id === currentSlideIndex) || cases[0];
+      const d = studentData[currentSlideIndex] || {};
+
+      document.getElementById("slideGroupBadge").className = `px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wider ${c.theme.accentBar} text-white`;
+      document.getElementById("slideGroupBadge").textContent = `${c.groupNumber}모둠 발표 슬라이드`;
+      document.getElementById("slideTopicTitle").textContent = c.topic;
+      document.getElementById("slideIndexIndicator").textContent = `${currentSlideIndex} / 5`;
+      document.getElementById("slideHeadline").textContent = c.headline;
+      document.getElementById("slideStatsText").textContent = c.stats;
+      document.getElementById("slideSummaryText").textContent = c.summary;
+
+      // Submission Badge
+      const subBadge = document.getElementById("slideSubmittedBadge");
+      if (d.is_submitted) {
+        subBadge.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        subBadge.textContent = "최종 제출 완료";
+      } else {
+        subBadge.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+        subBadge.textContent = "작성 진행 중";
+      }
+
+      // Evidence Photo
+      const imgEl = document.getElementById("slideEvidenceImg");
+      const placeholderEl = document.getElementById("slideEvidencePlaceholder");
+      const captionEl = document.getElementById("slideEvidenceCaption");
+
+      if (d.evidence_image && d.evidence_image.length > 5) {
+        imgEl.src = d.evidence_image;
+        imgEl.classList.remove("hidden");
+        placeholderEl.classList.add("hidden");
+        captionEl.textContent = d.evidence_caption || "학생 첨부 사진";
+      } else {
+        imgEl.src = "";
+        imgEl.classList.add("hidden");
+        placeholderEl.classList.remove("hidden");
+        placeholderEl.textContent = "첨부된 현장 증거 사진 없음";
+        captionEl.textContent = "";
+      }
+
+      // 4 Analytic Blocks
+      document.getElementById("slideCauseNatural").textContent = d.causes_natural?.trim() || "(자연적 요인 분석 미작성)";
+      document.getElementById("slideCauseSocial").textContent = d.causes_social?.trim() || "(사회·인위적 요인 분석 미작성)";
+      document.getElementById("slideIneqBeneficiary").textContent = d.inequality_beneficiary?.trim() || "(혜택 누리는 집단 미작성)";
+      document.getElementById("slideIneqDamaged").textContent = d.inequality_damaged?.trim() || "(피해 입는 취약 집단 미작성)";
+      document.getElementById("slideSolPolicy").textContent = d.solutions_policy?.trim() || "(정책적 방안 미작성)";
+      document.getElementById("slideSolTech").textContent = d.solutions_tech?.trim() || "(기술적 방안 미작성)";
+      document.getElementById("slideRealCase").textContent = d.real_case_study?.trim() || "(실제 적용 사례 미작성)";
+
+      // Manifesto Quote
+      const manifesto = d.spatial_justice_core?.trim();
+      if (manifesto && manifesto.length > 0) {
+        document.getElementById("slideManifestoText").innerHTML = `“우리 모둠이 생각하는 공간 정의란 <span class="text-amber-300 font-extrabold underline decoration-amber-400 decoration-2 underline-offset-4">${escapeHtml(manifesto)}</span>이다.”`;
+      } else {
+        document.getElementById("slideManifestoText").innerHTML = `“우리 모둠이 생각하는 공간 정의란 <span class="text-slate-400 font-normal italic">[아직 입력되지 않았습니다]</span>이다.”`;
+      }
+
+      lucide.createIcons();
+    }
+
+    function prevSlide() {
+      if (currentSlideIndex > 1) {
+        currentSlideIndex--;
+      } else {
+        currentSlideIndex = 5;
+      }
+      renderSlideModalContent();
+    }
+
+    function nextSlide() {
+      if (currentSlideIndex < 5) {
+        currentSlideIndex++;
+      } else {
+        currentSlideIndex = 1;
+      }
+      renderSlideModalContent();
+    }
+
+    function toggleFullscreen() {
+      const modal = document.getElementById("slideModal");
+      if (!document.fullscreenElement) {
+        modal.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Keyboard navigation (Arrow keys + Escape)
+    window.addEventListener("keydown", (e) => {
+      const modal = document.getElementById("slideModal");
+      if (modal.classList.contains("hidden")) return;
+
+      if (e.key === "ArrowLeft") {
+        prevSlide();
+      } else if (e.key === "ArrowRight") {
+        nextSlide();
+      } else if (e.key === "Escape") {
+        closeSlideModal();
+      }
+    });
+
+    // 11. TEACHER ADMIN MODAL (Password Protected)
+    function openTeacherModal() {
+      const modal = document.getElementById("teacherModal");
+      const lockScreen = document.getElementById("teacherLockScreen");
+      const unlockedScreen = document.getElementById("teacherUnlockedScreen");
+
+      modal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+
+      if (isTeacherUnlocked) {
+        lockScreen.classList.add("hidden");
+        unlockedScreen.classList.remove("hidden");
+        renderTeacherGroupSelectTabs();
+        loadTeacherEditFields(currentGroupId);
+      } else {
+        lockScreen.classList.remove("hidden");
+        unlockedScreen.classList.add("hidden");
+        document.getElementById("teacherPasswordInput").value = "";
+        document.getElementById("passwordErrorMsg").classList.add("hidden");
+      }
+      lucide.createIcons();
+    }
+
+    function closeTeacherModal() {
+      document.getElementById("teacherModal").classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    function verifyTeacherPassword() {
+      const input = document.getElementById("teacherPasswordInput").value;
+      const savedPass = localStorage.getItem(STORAGE_KEY_PASS) || "1234";
+
+      if (input === savedPass || input === "1234") {
+        isTeacherUnlocked = true;
+        document.getElementById("teacherLockScreen").classList.add("hidden");
+        document.getElementById("teacherUnlockedScreen").classList.remove("hidden");
+        renderTeacherGroupSelectTabs();
+        loadTeacherEditFields(currentGroupId);
+        showToast("교사 인증에 성공했습니다.", "success");
+      } else {
+        document.getElementById("passwordErrorMsg").classList.remove("hidden");
+      }
+    }
+
+    let teacherEditingGroupId = 1;
+
+    function renderTeacherGroupSelectTabs() {
+      const container = document.getElementById("teacherGroupSelectTabs");
+      if (!container) return;
+      container.innerHTML = "";
+
+      cases.forEach(c => {
+        const btn = document.createElement("button");
+        btn.onclick = () => loadTeacherEditFields(c.id);
+        const isActive = c.id === teacherEditingGroupId;
+        btn.className = `p-2 rounded-lg text-xs font-bold border transition ${
+          isActive ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200'
+        }`;
+        btn.textContent = `${c.groupNumber}모둠`;
+        container.appendChild(btn);
+      });
+    }
+
+    function loadTeacherEditFields(groupId) {
+      teacherEditingGroupId = groupId;
+      renderTeacherGroupSelectTabs();
+      const c = cases.find(item => item.id === groupId) || cases[0];
+
+      document.getElementById("teacherEditingGroupLabel").textContent = `${c.groupNumber}모둠 사례 편집 중`;
+      document.getElementById("edit_case_topic").value = c.topic;
+      document.getElementById("edit_case_headline").value = c.headline;
+      document.getElementById("edit_case_stats").value = c.stats;
+      document.getElementById("edit_case_summary").value = c.summary;
+      document.getElementById("edit_case_news_url").value = c.newsUrl;
+      document.getElementById("edit_case_image_url").value = c.imageUrl;
+    }
+
+    function saveTeacherCaseChanges() {
+      const c = cases.find(item => item.id === teacherEditingGroupId);
+      if (!c) return;
+
+      c.topic = document.getElementById("edit_case_topic").value.trim();
+      c.headline = document.getElementById("edit_case_headline").value.trim();
+      c.stats = document.getElementById("edit_case_stats").value.trim();
+      c.summary = document.getElementById("edit_case_summary").value.trim();
+      c.newsUrl = document.getElementById("edit_case_news_url").value.trim();
+      c.imageUrl = document.getElementById("edit_case_image_url").value.trim();
+
+      localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
+      renderCurrentGroupView();
+      renderGroupTabs();
+      showToast(`${c.groupNumber}모둠 사례가 성공적으로 업데이트되었습니다.`, "success");
+    }
+
+    function resetCurrentCaseToDefault() {
+      if (!confirm(`${teacherEditingGroupId}모둠의 사례 내용을 원래 기본값으로 되돌리시겠습니까?`)) return;
+      const defaultOne = DEFAULT_CASES.find(item => item.id === teacherEditingGroupId);
+      if (!defaultOne) return;
+
+      const idx = cases.findIndex(item => item.id === teacherEditingGroupId);
+      if (idx !== -1) {
+        cases[idx] = JSON.parse(JSON.stringify(defaultOne));
+        localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
+        loadTeacherEditFields(teacherEditingGroupId);
+        renderCurrentGroupView();
+        showToast("기본 사례 데이터로 복원되었습니다.", "info");
+      }
+    }
+
+    // Fast Action: Load Sample Student Answers for class demonstration
+    function loadSampleStudentAnswers() {
+      if (!confirm("모든 5개 모둠에 시연용 모범 학생 답안을 채우시겠습니까? (기존 내용은 덮어씌워집니다)")) return;
+      studentData = JSON.parse(JSON.stringify(SAMPLE_STUDENT_ANSWERS));
+      saveStudentData();
+      renderCurrentGroupView();
+      renderGroupTabs();
+      closeTeacherModal();
+      showToast("5개 모둠의 예시 학생 답안이 성공적으로 로드되었습니다!", "success");
+    }
+
+    // Fast Action: Reset All Student Answers
+    function resetAllStudentAnswers() {
+      if (!confirm("정말로 모든 모둠의 작성 내용을 백지 상태로 초기화하시겠습니까?")) return;
+      studentData = {};
+      for (let i = 1; i <= 5; i++) {
+        studentData[i] = {
+          causes_natural: "",
+          causes_social: "",
+          inequality_beneficiary: "",
+          inequality_damaged: "",
+          solutions_policy: "",
+          solutions_tech: "",
+          real_case_study: "",
+          evidence_image: "",
+          evidence_caption: "",
+          spatial_justice_core: "",
+          is_submitted: false
+        };
+      }
+      saveStudentData();
+      renderCurrentGroupView();
+      renderGroupTabs();
+      closeTeacherModal();
+      showToast("모든 모둠의 작성 내용이 초기화되었습니다.", "info");
+    }
+
+    // 12. EXPORT & DOWNLOAD STANDALONE HTML
+    function downloadSingleHtml() {
+      // Export current HTML with state preserved
+      const clonedDoc = document.documentElement.cloneNode(true);
+      
+      // Inject current cases and studentData as defaults inside the script tag so offline works right away
+      const htmlContent = "<!doctype html>\n" + clonedDoc.outerHTML;
+      const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "도시환경문제_공간정의_수업앱.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast("단일 HTML 파일이 다운로드되었습니다. USB에 담아 오프라인 교실에서도 바로 실행할 수 있습니다.", "success");
+    }
+
+    function exportDataJson() {
+      const bundle = {
+        exportedAt: new Date().toISOString(),
+        cases: cases,
+        studentData: studentData
+      };
+      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `공간정의수업_데이터_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("수업 데이터가 JSON 파일로 백업되었습니다.", "success");
+    }
+
+    function importDataJson(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const bundle = JSON.parse(event.target.result);
+          if (bundle.cases) {
+            cases = bundle.cases;
+            localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
+          }
+          if (bundle.studentData) {
+            studentData = bundle.studentData;
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(studentData));
+          }
+          renderCurrentGroupView();
+          renderGroupTabs();
+          closeTeacherModal();
+          showToast("JSON 수업 데이터를 성공적으로 불러왔습니다.", "success");
+        } catch (err) {
+          showToast("유효한 JSON 파일이 아닙니다.", "error");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // 13. CLASSROOM TIMER
+    function updateTimerDisplay() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      const display = document.getElementById("timerDisplay");
+      if (display) {
+        display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById("timerToggleBtn");
+      const icon = document.getElementById("timerIcon");
+
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        if (icon) icon.setAttribute("data-lucide", "play");
+      } else {
+        if (timerSeconds <= 0) timerSeconds = 15 * 60;
+        isTimerRunning = true;
+        if (icon) icon.setAttribute("data-lucide", "pause");
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            if (icon) icon.setAttribute("data-lucide", "play");
+            playTimerAlarm();
+            showToast("수업 타이머 시간이 종료되었습니다!", "info");
+          }
+        }, 1000);
+      }
+      lucide.createIcons();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      timerSeconds = 15 * 60;
+      updateTimerDisplay();
+      const icon = document.getElementById("timerIcon");
+      if (icon) icon.setAttribute("data-lucide", "play");
+      lucide.createIcons();
+    }
+
+    // 14. AUDIO SYNTH SOUNDS (Web Audio API, no external audio files required)
+    function playSubmitSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+        osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+        osc.start(now);
+        osc.stop(now + 0.6);
+      } catch (e) {}
+    }
+
+    function playTimerAlarm() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        [0, 0.25, 0.5].forEach(delay => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          const t = ctx.currentTime + delay;
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(880, t);
+          gain.gain.setValueAtTime(0.2, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+
+          osc.start(t);
+          osc.stop(t + 0.18);
+        });
+      } catch (e) {}
+    }
+
+    // 15. TOAST NOTIFICATIONS
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      const bgClass = type === "success" 
+        ? "bg-emerald-600 text-white" 
+        : type === "error" 
+        ? "bg-rose-600 text-white" 
+        : "bg-slate-900 text-white";
+
+      toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 pointer-events-auto`;
+      toast.innerHTML = `
+        <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info'}" class="w-4 h-4"></i>
+        <span>${escapeHtml(msg)}</span>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(8px)";
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 16. INITIAL BOOTSTRAP ON LOAD
+    window.addEventListener("DOMContentLoaded", () => {
+      initData();
+      renderGroupTabs();
+      renderCurrentGroupView();
+      attachInputListeners();
+      updateTimerDisplay();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

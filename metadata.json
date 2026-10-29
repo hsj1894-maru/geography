@@ -1,0 +1,6 @@
+{
+  "name": "도시 환경 문제와 공간 정의 탐구",
+  "description": "고등학교 지리·사회 수업용 모둠별 도시 환경 문제(폭염, 홍수, 쓰레기, 대기·수질오염) 분석 및 공간 정의 탐구, 교사용 실시간 발표 대시보드 웹 앱",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
