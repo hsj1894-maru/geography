@@ -93,31 +93,19 @@
       <div class="flex items-center justify-between h-16">
         
         <!-- Brand / Title -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-sm shadow-sky-200">
-            <i data-lucide="scale" class="w-5 h-5"></i>
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-sm shadow-sky-200 shrink-0">
+            <i data-lucide="scale" class="w-4 h-4 sm:w-5 sm:h-5"></i>
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-lg font-bold text-slate-900 tracking-tight">도시 문제와 공간 정의 탐구</h1>
-              <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100 hidden sm:inline-block">도시의 미래 탐구</span>
-            </div>
-            <p class="text-xs text-slate-500">모둠별 도시의 환경 문제와 재난 불평등 분석 & 공간 정의 실천 방안</p>
+          <div class="flex items-center gap-2 min-w-0">
+            <h1 class="text-sm sm:text-lg font-bold text-slate-900 tracking-tight truncate">도시 문제와 공간 정의 탐구</h1>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100 hidden sm:inline-block shrink-0">도시의 미래 탐구</span>
           </div>
         </div>
 
-        <!-- Header Actions: Firebase Status, Timer, Presentation Mode, Teacher Settings -->
-        <div class="flex items-center gap-2 sm:gap-2.5">
+        <!-- Header Actions -->
+        <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           
-          <!-- Firebase Realtime Auto Sync Status Badge -->
-          <div id="firebaseStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs">
-            <span class="relative flex h-2 w-2">
-              <span id="firebaseStatusPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span id="firebaseStatusDot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span id="firebaseStatusText">실시간 자동 연동 중</span>
-          </div>
-
           <!-- Classroom Timer -->
           <div class="hidden md:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700">
             <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
@@ -132,22 +120,17 @@
             </div>
           </div>
 
-          <!-- Download Standalone HTML Button -->
-          <button onclick="downloadSingleHtml()" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="USB 저장 및 오프라인 수업용 단일 HTML 다운로드">
-            <i data-lucide="download" class="w-4 h-4 text-slate-500"></i>
-            <span>HTML 다운로드</span>
-          </button>
-
           <!-- Teacher Admin Modal Trigger -->
-          <button onclick="openTeacherModal()" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="교사용 사례 수정 및 수업 관리">
+          <button onclick="openTeacherModal()" class="inline-flex items-center gap-1.5 p-2 sm:px-3 sm:py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="교사용 수업 관리">
             <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
             <span class="hidden sm:inline">교사 관리</span>
           </button>
 
           <!-- Mode Switch Button: Student Inquiry vs Presentation Mode -->
-          <button id="viewToggleBtn" onclick="togglePresentationMode()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-xs">
+          <button id="viewToggleBtn" onclick="togglePresentationMode()" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-xs whitespace-nowrap">
             <i data-lucide="presentation" class="w-4 h-4"></i>
-            <span id="viewToggleText">교사용 발표 모드</span>
+            <span id="viewToggleText" class="hidden sm:inline">교사용 발표 모드</span>
+            <span class="sm:hidden text-xs">발표 모드</span>
           </button>
         </div>
 
