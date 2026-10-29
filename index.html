@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>도시 환경 문제와 공간 정의 탐구 - 고등학교 지리·사회과 협력 탐구</title>
+  <title>도시 문제와 공간 정의 탐구 - 고등학교 지리·사회과 협력 탐구</title>
   <meta name="description" content="고등학교 지리·사회 수업용 모둠별 도시 환경 문제(폭염, 홍수, 쓰레기, 대기·수질오염) 분석 및 공간 정의 탐구, 교사용 실시간 발표 대시보드 웹 앱" />
-  <meta property="og:title" content="도시 환경 문제와 공간 정의 탐구" />
-  <meta property="og:description" content="고등학교 지리·사회과 모둠별 협력 탐구 및 공간 정의(Spatial Justice) 분석 대시보드" />
+  <meta property="og:title" content="도시 문제와 공간 정의 탐구" />
+  <meta property="og:description" content="모둠별 도시의 환경 문제와 재난 불평등 분석 & 공간 정의(Spatial Justice) 실천 방안" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
 
@@ -40,12 +40,15 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- Firebase SDK CDN (Compat mode for standalone browser execution without bundler) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
   <style>
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
-    /* Custom scrollbar for edutech look */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -72,6 +75,14 @@
         color: black !important;
       }
     }
+    @keyframes highlightPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      50% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .card-realtime-update {
+      animation: highlightPulse 0.8s ease-out;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-sky-200">
@@ -91,13 +102,22 @@
               <h1 class="text-lg font-bold text-slate-900 tracking-tight">도시 문제와 공간 정의 탐구</h1>
               <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100 hidden sm:inline-block">도시의 미래 탐구</span>
             </div>
-            <p class="text-xs text-slate-500">모둠별 도시의 환경 문제와 재난 불평등 분석 & 공간 정의(Spatial Justice) 실천 방안</p>
+            <p class="text-xs text-slate-500">모둠별 도시의 환경 문제와 재난 불평등 분석 & 공간 정의 실천 방안</p>
           </div>
         </div>
 
-        <!-- Header Actions: Timer, Presentation Mode, Teacher Settings -->
-        <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Header Actions: Firebase Status, Timer, Presentation Mode, Teacher Settings -->
+        <div class="flex items-center gap-2 sm:gap-2.5">
           
+          <!-- Firebase Realtime Sync Status Badge -->
+          <button onclick="openFirebaseModal()" id="firebaseStatusBtn" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition shadow-2xs bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100" title="Firebase Realtime Database 연동 설정 열기">
+            <span class="relative flex h-2 w-2">
+              <span id="firebaseStatusPing" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span id="firebaseStatusDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+            <span id="firebaseStatusText" class="truncate max-w-[130px] sm:max-w-none">Firebase 설정</span>
+          </button>
+
           <!-- Classroom Timer -->
           <div class="hidden md:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700">
             <i data-lucide="clock" class="w-4 h-4 text-slate-500"></i>
@@ -113,7 +133,7 @@
           </div>
 
           <!-- Download Standalone HTML Button -->
-          <button onclick="downloadSingleHtml()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="USB 저장 및 오프라인 수업용 단일 HTML 다운로드">
+          <button onclick="downloadSingleHtml()" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="USB 저장 및 오프라인 수업용 단일 HTML 다운로드">
             <i data-lucide="download" class="w-4 h-4 text-slate-500"></i>
             <span>HTML 다운로드</span>
           </button>
@@ -220,8 +240,8 @@
       <!-- AUTO-SAVE STATUS & COMPLETION BAR -->
       <div class="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-2xs">
         <div class="flex items-center gap-2">
-          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span id="autoSaveIndicator" class="text-xs font-medium text-slate-600">실시간 자동 저장 켜짐 (내용 작성 시 자동 저장됩니다)</span>
+          <div id="liveSyncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span id="autoSaveIndicator" class="text-xs font-medium text-slate-600">실시간 저장 켜짐 (내용 작성 시 자동 저장 및 클라우드 동기화됩니다)</span>
         </div>
 
         <div class="flex items-center gap-4">
@@ -296,7 +316,7 @@
                   </span>
                   <span class="text-[11px] text-slate-400 font-normal">수혜 계층/지역</span>
                 </label>
-                <textarea id="input_inequality_beneficiary" rows="3" placeholder="예: 대형 냉방 시스템을 갖춘 상업 빌딩 이용자, 녹지 비율이 높은 부촌 주거지 주민 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition resize-none"></textarea>
+                <textarea id="input_inequality_beneficiary" rows="3" placeholder="예: 대형 냉방 시스템을 갖춘 상업 빌딩 이용자, 녹지 비율이 높은 부촌 주거지 주민 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-emerald-500/50 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition resize-none"></textarea>
               </div>
 
               <div>
@@ -307,7 +327,7 @@
                   </span>
                   <span class="text-[11px] text-slate-400 font-normal">취약 계층/지역</span>
                 </label>
-                <textarea id="input_inequality_damaged" rows="3" placeholder="예: 단열과 에어컨이 부족한 도심 쪽방촌 고령 노인, 야외 노동자, 에너지 빈곤층 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-slate-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 transition resize-none"></textarea>
+                <textarea id="input_inequality_damaged" rows="3" placeholder="예: 단열과 에어컨이 부족한 도심 쪽방촌 고령 노인, 야외 노동자, 에너지 빈곤층 등" class="w-full text-xs sm:text-sm p-3 rounded-xl border border-rose-500/50 focus:border-rose-500 focus:ring-2 focus:ring-rose-100 transition resize-none"></textarea>
               </div>
             </div>
           </div>
@@ -389,7 +409,7 @@
                 <i data-lucide="image-plus" class="w-8 h-8 text-slate-400 mx-auto mb-2"></i>
                 <div class="text-xs text-slate-600 mb-1">
                   <label for="evidenceFileInput" class="cursor-pointer text-indigo-600 font-bold hover:underline">
-                    컴퓨터에서 사진 선택
+                    컴퓨터/기기에서 사진 선택
                   </label>
                   <span>또는 드래그 앤 드롭</span>
                 </div>
@@ -459,7 +479,7 @@
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-12 border-t border-slate-200">
           <div class="text-xs text-slate-500 flex items-center gap-2">
             <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
-            <span>모든 작성 내용은 웹 브라우저에 안전하게 보관되어 탭을 닫아도 복원됩니다.</span>
+            <span>모든 작성 내용은 브라우저 및 Firebase 클라우드에 실시간 동기화됩니다.</span>
           </div>
 
           <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -488,15 +508,19 @@
               실시간 발표 대시보드
             </span>
             <span class="text-xs text-slate-400">대형 TV / 빔프로젝터 공개수업 모드</span>
+            <span id="presFirebaseLiveBadge" class="hidden text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Firebase 실시간 수신 중</span>
+            </span>
           </div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">도시 환경 문제와 공간 정의 모둠별 탐구 발표</h2>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">도시 문제와 공간 정의 모둠별 탐구 발표</h2>
           <p class="text-sm text-slate-300 max-w-2xl leading-relaxed">
-            모둠 카드를 클릭하면 대형 스크린 전용 전체화면 PPT 슬라이드로 전환됩니다. (키보드 좌우 화살표로 모둠 이동 가능)
+            모둠 카드를 클릭하면 대형 스크린 전용 전체화면 PPT 슬라이드로 전환됩니다. 학생들이 태블릿에서 [제출하기]를 누르면 교사 화면에 실시간으로 즉시 반영됩니다.
           </p>
         </div>
 
         <!-- Realtime submission counter -->
-        <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md px-5 py-4 rounded-xl border border-white/10">
+        <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md px-5 py-4 rounded-xl border border-white/10 shrink-0">
           <div class="text-center">
             <div class="text-xs text-slate-300 font-medium">제출 완료</div>
             <div id="presentSubmittedCount" class="text-2xl sm:text-3xl font-black text-emerald-400">0 / 5</div>
@@ -529,6 +553,9 @@
         </span>
         <span id="slideTopicTitle" class="text-sm sm:text-base font-semibold text-slate-200">
           도심 열섬 현상과 폭염 불평등
+        </span>
+        <span id="slideRealtimeIndicator" class="hidden text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
+          실시간 연동 중
         </span>
       </div>
 
@@ -702,6 +729,117 @@
 
   </div>
 
+  <!-- ==================== FIREBASE REALTIME SYNC MODAL ==================== -->
+  <div id="firebaseModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs overflow-y-auto flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold">
+            <i data-lucide="flame" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold">Firebase Realtime Database 연동 설정</h3>
+            <p class="text-xs text-amber-100">학생 기기(태블릿/스마트폰)와 교사 발표 화면 간 실시간 제출 동기화</p>
+          </div>
+        </div>
+        <button onclick="closeFirebaseModal()" class="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+        
+        <!-- Current Connection Status Card -->
+        <div id="fbModalStatusCard" class="p-4 rounded-xl border flex items-center justify-between bg-amber-50 border-amber-200">
+          <div class="flex items-center gap-3">
+            <div id="fbModalStatusIcon" class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center">
+              <i data-lucide="wifi-off" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div id="fbModalStatusTitle" class="text-xs font-bold text-amber-900">Firebase 설정 필요 (현재 로컬 단독 모드)</div>
+              <div id="fbModalStatusSub" class="text-[11px] text-amber-700">Firebase Realtime Database 정보를 입력하면 학생들과 실시간 연결됩니다.</div>
+            </div>
+          </div>
+          <button id="fbDisconnectBtn" onclick="disconnectFirebase()" class="hidden px-2.5 py-1 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition">
+            연결 해제
+          </button>
+        </div>
+
+        <!-- Room Code Setting -->
+        <div class="space-y-1">
+          <label class="block text-xs font-bold text-slate-700">수업 룸(Room) 코드</label>
+          <div class="flex gap-2">
+            <input id="input_room_code" type="text" placeholder="예: geo-class-2026-1" class="flex-1 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 font-mono font-semibold" />
+            <button onclick="generateRandomRoomCode()" class="px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+              랜덤 생성
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500">교사와 5개 모둠 학생들이 동일한 룸 코드를 공유해야 실시간으로 데이터가 연결됩니다.</p>
+        </div>
+
+        <!-- Firebase Config Input (JSON or Database URL) -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-slate-700">Firebase 설정 (firebaseConfig 객체 또는 Database URL)</label>
+            <span class="text-[11px] text-indigo-600 font-semibold cursor-pointer hover:underline" onclick="toggleFirebaseGuide()">
+              3단계 무료 생성 가이드 보기
+            </span>
+          </div>
+          <textarea id="input_firebase_config" rows="6" placeholder='Firebase 콘솔의 웹 앱 설정에서 복사한 객체를 그대로 붙여넣으세요:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "databaseURL": "https://your-project-default-rtdb.firebaseio.com",&#10;  "projectId": "your-project-id"&#10;}' class="w-full text-xs font-mono p-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 leading-relaxed resize-none"></textarea>
+        </div>
+
+        <!-- How to get Firebase (Collapsible 3-step guide) -->
+        <div id="firebaseGuideBox" class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs text-slate-700">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="book-open" class="w-4 h-4 text-amber-600"></i>
+            <span>초간단 무료 Firebase Realtime Database 3분 생성법</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-1 text-slate-600 leading-relaxed text-[11px]">
+            <li><a href="https://console.firebase.google.com" target="_blank" class="text-indigo-600 font-bold underline">Firebase 콘솔</a>에 구글 계정으로 로그인 후 <strong>[프로젝트 만들기]</strong>를 클릭합니다.</li>
+            <li>왼쪽 메뉴에서 <strong>[빌드] → [Realtime Database]</strong>를 선택하고 [데이터베이스 만들기]를 누른 뒤, 보안 규칙을 아래와 같이 설정합니다:
+              <pre class="bg-slate-950 text-slate-200 p-2 rounded-md mt-1 font-mono text-[10px]">{ "rules": { ".read": true, ".write": true } }</pre>
+            </li>
+            <li><strong>[프로젝트 설정] (톱니바퀴) → [내 앱]</strong>에서 웹(&lt;/&gt;)을 추가한 뒤 표시되는 <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-800">const firebaseConfig = { ... };</code> 내용을 복사하여 위 입력창에 붙여넣고 [저장 및 연결]을 누르면 완료됩니다!</li>
+          </ol>
+        </div>
+
+        <!-- Student Direct Link Generator -->
+        <div id="studentShareSection" class="p-4 rounded-xl bg-sky-50 border border-sky-100 space-y-2.5">
+          <div class="text-xs font-bold text-sky-900 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="share-2" class="w-4 h-4 text-sky-600"></i>
+              <span>학생 기기(태블릿/스마트폰) 모둠별 바로가기 주소</span>
+            </span>
+          </div>
+          <p class="text-[11px] text-sky-700">아래 모둠 버튼을 클릭하면 해당 모둠 화면으로 즉시 열리는 URL 링크가 복사됩니다 (학생들에게 QR 코드나 메신저로 전달 가능):</p>
+          <div class="grid grid-cols-5 gap-1.5">
+            <button onclick="copyGroupUrl(1)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">1모둠 복사</button>
+            <button onclick="copyGroupUrl(2)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">2모둠 복사</button>
+            <button onclick="copyGroupUrl(3)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">3모둠 복사</button>
+            <button onclick="copyGroupUrl(4)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">4모둠 복사</button>
+            <button onclick="copyGroupUrl(5)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">5모둠 복사</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex items-center justify-between">
+        <button onclick="closeFirebaseModal()" class="px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition">
+          닫기
+        </button>
+        <button onclick="saveAndConnectFirebase()" class="px-5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition shadow-xs flex items-center gap-1.5">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>Firebase 저장 및 실시간 연결</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ==================== TEACHER ADMIN / EDIT MODAL ==================== -->
   <div id="teacherModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs overflow-y-auto flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-3xl w-full border border-slate-200 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
@@ -808,7 +946,7 @@
 
             <div class="pt-2 flex justify-end">
               <button onclick="saveTeacherCaseChanges()" class="px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition">
-                사례 수정사항 저장 및 즉시 반영
+                사례 수정사항 저장 및 실시간 동기화
               </button>
             </div>
           </div>
@@ -848,7 +986,7 @@
   <script>
     /**
      * URBAN ENVIRONMENTAL ISSUES & SPATIAL JUSTICE APP
-     * High School Geography / Social Studies Open Class Web Application
+     * High School Geography / Social Studies Web App with Firebase Realtime Database
      */
 
     // 1. Initial Curated Case Data (5 Groups)
@@ -1024,10 +1162,12 @@
       }
     };
 
-    // 2. State Management via LocalStorage
+    // 2. State & Keys
     const STORAGE_KEY_DATA = "spatial_justice_student_data_v1";
     const STORAGE_KEY_CASES = "spatial_justice_cases_v1";
     const STORAGE_KEY_PASS = "spatial_justice_teacher_pass_v1";
+    const STORAGE_KEY_FB_CONFIG = "spatial_justice_firebase_config_v1";
+    const STORAGE_KEY_ROOM = "spatial_justice_room_code_v1";
 
     let cases = [];
     let studentData = {};
@@ -1036,12 +1176,34 @@
     let currentSlideIndex = 1;
     let isTeacherUnlocked = false;
     let timerInterval = null;
-    let timerSeconds = 15 * 60; // default 15 min
+    let timerSeconds = 15 * 60;
     let isTimerRunning = false;
 
-    // Load initial cases and student inquiry data
+    // Firebase State
+    let firebaseDb = null;
+    let isFirebaseConnected = false;
+    let currentRoomCode = "class-2026-1";
+    let firebaseDebounceTimers = {};
+    let isRemoteUpdateInProgress = false;
+
+    // 3. Initialize Data & Firebase
     function initData() {
-      // 1. Cases
+      // 1) Read URL params (support ?group=2&room=geo1&mode=present)
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlGroup = parseInt(urlParams.get("group"));
+      if (urlGroup >= 1 && urlGroup <= 5) {
+        currentGroupId = urlGroup;
+      }
+      const urlRoom = urlParams.get("room");
+      if (urlRoom && urlRoom.trim().length > 0) {
+        currentRoomCode = urlRoom.trim();
+        localStorage.setItem(STORAGE_KEY_ROOM, currentRoomCode);
+      } else {
+        const savedRoom = localStorage.getItem(STORAGE_KEY_ROOM);
+        if (savedRoom) currentRoomCode = savedRoom;
+      }
+
+      // 2) Load Cases
       const savedCases = localStorage.getItem(STORAGE_KEY_CASES);
       if (savedCases) {
         try {
@@ -1054,7 +1216,7 @@
         localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
       }
 
-      // 2. Student Data
+      // 3) Load Student Data
       const savedData = localStorage.getItem(STORAGE_KEY_DATA);
       if (savedData) {
         try {
@@ -1066,7 +1228,6 @@
         studentData = {};
       }
 
-      // Ensure all 5 groups exist in studentData
       for (let i = 1; i <= 5; i++) {
         if (!studentData[i]) {
           studentData[i] = {
@@ -1084,6 +1245,230 @@
           };
         }
       }
+
+      // 4) Check presentation mode parameter
+      if (urlParams.get("mode") === "present") {
+        togglePresentationMode();
+      }
+
+      // 5) Try to initialize Firebase
+      initFirebase();
+    }
+
+    // 4. FIREBASE REALTIME DATABASE INITIALIZATION
+    function initFirebase() {
+      const savedConfigStr = localStorage.getItem(STORAGE_KEY_FB_CONFIG);
+      const roomInput = document.getElementById("input_room_code");
+      if (roomInput) roomInput.value = currentRoomCode;
+
+      if (!savedConfigStr) {
+        updateFirebaseUiStatus(false, "Firebase 미연동");
+        return;
+      }
+
+      try {
+        const config = JSON.parse(savedConfigStr);
+        if (!config.databaseURL && !config.projectId) {
+          updateFirebaseUiStatus(false, "설정 오류");
+          return;
+        }
+
+        // Initialize Firebase App if not already initialized
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config);
+        }
+        firebaseDb = firebase.database();
+        isFirebaseConnected = true;
+
+        updateFirebaseUiStatus(true, `실시간 연동 (${currentRoomCode})`);
+        attachFirebaseListeners();
+
+        // Listen for connection state
+        const connectedRef = firebaseDb.ref(".info/connected");
+        connectedRef.on("value", (snap) => {
+          if (snap.val() === true) {
+            updateFirebaseUiStatus(true, `실시간 연동 (${currentRoomCode})`);
+          } else {
+            updateFirebaseUiStatus(false, "연결 재시도 중...");
+          }
+        });
+      } catch (err) {
+        console.error("Firebase init failed:", err);
+        updateFirebaseUiStatus(false, "연결 실패");
+      }
+    }
+
+    function updateFirebaseUiStatus(connected, text) {
+      isFirebaseConnected = connected;
+      const statusBtn = document.getElementById("firebaseStatusBtn");
+      const statusDot = document.getElementById("firebaseStatusDot");
+      const statusPing = document.getElementById("firebaseStatusPing");
+      const statusText = document.getElementById("firebaseStatusText");
+      const presLiveBadge = document.getElementById("presFirebaseLiveBadge");
+      const slideLiveBadge = document.getElementById("slideRealtimeIndicator");
+
+      if (connected) {
+        statusBtn.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition shadow-2xs bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100";
+        statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
+        statusPing.classList.remove("hidden");
+        statusText.textContent = text;
+        if (presLiveBadge) presLiveBadge.classList.remove("hidden");
+        if (slideLiveBadge) slideLiveBadge.classList.remove("hidden");
+
+        // Modal status card
+        const mCard = document.getElementById("fbModalStatusCard");
+        const mIcon = document.getElementById("fbModalStatusIcon");
+        const mTitle = document.getElementById("fbModalStatusTitle");
+        const mSub = document.getElementById("fbModalStatusSub");
+        const dBtn = document.getElementById("fbDisconnectBtn");
+        if (mCard) {
+          mCard.className = "p-4 rounded-xl border flex items-center justify-between bg-emerald-50 border-emerald-200";
+          mIcon.className = "w-8 h-8 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center";
+          mIcon.innerHTML = `<i data-lucide="wifi" class="w-4 h-4"></i>`;
+          mTitle.textContent = `Firebase Realtime Database 정상 연결됨 (룸: ${currentRoomCode})`;
+          mSub.textContent = "학생 기기의 입력 및 제출 내용이 교사 발표 화면에 실시간으로 반영됩니다.";
+          if (dBtn) dBtn.classList.remove("hidden");
+        }
+      } else {
+        statusBtn.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition shadow-2xs bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100";
+        statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
+        statusPing.classList.add("hidden");
+        statusText.textContent = text || "Firebase 설정";
+        if (presLiveBadge) presLiveBadge.classList.add("hidden");
+        if (slideLiveBadge) slideLiveBadge.classList.add("hidden");
+
+        const mCard = document.getElementById("fbModalStatusCard");
+        const mIcon = document.getElementById("fbModalStatusIcon");
+        const mTitle = document.getElementById("fbModalStatusTitle");
+        const mSub = document.getElementById("fbModalStatusSub");
+        const dBtn = document.getElementById("fbDisconnectBtn");
+        if (mCard) {
+          mCard.className = "p-4 rounded-xl border flex items-center justify-between bg-amber-50 border-amber-200";
+          mIcon.className = "w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center";
+          mIcon.innerHTML = `<i data-lucide="wifi-off" class="w-4 h-4"></i>`;
+          mTitle.textContent = "Firebase 설정 필요 (현재 로컬 단독 모드)";
+          mSub.textContent = "Firebase Realtime Database 정보를 입력하면 학생들과 실시간 연결됩니다.";
+          if (dBtn) dBtn.classList.add("hidden");
+        }
+      }
+      lucide.createIcons();
+    }
+
+    // 5. ATTACH FIREBASE REALTIME LISTENERS (onValue)
+    function attachFirebaseListeners() {
+      if (!firebaseDb) return;
+      const roomRef = firebaseDb.ref(`classes/${currentRoomCode}`);
+
+      // 1) Listen for group submissions and inputs in real time
+      roomRef.child("groups").on("value", (snapshot) => {
+        const remoteData = snapshot.val();
+        if (!remoteData) return;
+
+        isRemoteUpdateInProgress = true;
+        let hasChanges = false;
+
+        Object.keys(remoteData).forEach((gid) => {
+          const numId = parseInt(gid);
+          if (numId >= 1 && numId <= 5) {
+            // Check if submission status changed
+            const prevSub = studentData[numId]?.is_submitted;
+            const newSub = remoteData[gid]?.is_submitted;
+
+            studentData[numId] = Object.assign({}, studentData[numId] || {}, remoteData[gid]);
+            hasChanges = true;
+
+            // If a group just submitted, show celebratory toast & chime in presentation mode
+            if (!prevSub && newSub) {
+              if (isPresentationMode) {
+                playSubmitSound();
+                showToast(`🎉 ${numId}모둠이 탐구를 최종 제출했습니다!`, "success");
+              }
+            }
+          }
+        });
+
+        if (hasChanges) {
+          localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(studentData));
+          renderGroupTabs();
+          updateProgressIndicators();
+
+          // If in Presentation Mode, re-render cards
+          if (isPresentationMode) {
+            renderPresentationDashboardCards();
+          }
+
+          // If Fullscreen Slide Modal is currently viewing one of the updated groups, refresh slide live!
+          const slideModal = document.getElementById("slideModal");
+          if (slideModal && !slideModal.classList.contains("hidden")) {
+            renderSlideModalContent();
+          }
+
+          // If in Student View, refresh fields only if the user is not currently typing into them
+          if (!isPresentationMode) {
+            const activeTag = document.activeElement ? document.activeElement.tagName : "";
+            if (activeTag !== "TEXTAREA" && activeTag !== "INPUT") {
+              renderCurrentGroupView();
+            } else {
+              // Update submission UI and preview without interrupting typing
+              updateSubmissionUi(studentData[currentGroupId]?.is_submitted);
+              updateEvidencePreview(studentData[currentGroupId]?.evidence_image);
+            }
+          }
+        }
+        isRemoteUpdateInProgress = false;
+      });
+
+      // 2) Listen for teacher case edits in real time
+      roomRef.child("cases").on("value", (snapshot) => {
+        const remoteCases = snapshot.val();
+        if (remoteCases && Array.isArray(remoteCases) && remoteCases.length > 0) {
+          cases = remoteCases;
+          localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
+          renderCurrentGroupView();
+          renderGroupTabs();
+          if (isPresentationMode) renderPresentationDashboardCards();
+        }
+      });
+    }
+
+    // 6. SYNC TO FIREBASE
+    function syncGroupToFirebase(groupId, isFinalSubmit = false) {
+      if (!firebaseDb || !isFirebaseConnected) return;
+
+      const payload = Object.assign({}, studentData[groupId], {
+        updatedAt: new Date().toISOString(),
+        clientTimestamp: Date.now()
+      });
+
+      firebaseDb.ref(`classes/${currentRoomCode}/groups/${groupId}`).set(payload)
+        .then(() => {
+          if (isFinalSubmit) {
+            showToast(`${groupId}모둠 탐구가 실시간으로 교사 발표 화면에 전송되었습니다!`, "success");
+          }
+        })
+        .catch((err) => {
+          console.error("Firebase write error:", err);
+        });
+    }
+
+    function syncCasesToFirebase() {
+      if (!firebaseDb || !isFirebaseConnected) return;
+      firebaseDb.ref(`classes/${currentRoomCode}/cases`).set(cases)
+        .then(() => {
+          showToast("수정된 사례가 모든 학생 기기에 실시간 반영되었습니다.", "success");
+        })
+        .catch((err) => console.error("Firebase cases sync error:", err));
+    }
+
+    // Debounced sync on keystroke
+    function triggerDebouncedFirebaseSync(groupId) {
+      if (!firebaseDb || !isFirebaseConnected) return;
+      if (firebaseDebounceTimers[groupId]) {
+        clearTimeout(firebaseDebounceTimers[groupId]);
+      }
+      firebaseDebounceTimers[groupId] = setTimeout(() => {
+        syncGroupToFirebase(groupId, false);
+      }, 600);
     }
 
     // Save studentData to LocalStorage and trigger visual update
@@ -1100,9 +1485,12 @@
       if (showToastFeedback) {
         showToast("저장되었습니다.", "success");
       }
+
+      // Sync to Firebase if connected
+      triggerDebouncedFirebaseSync(currentGroupId);
     }
 
-    // 3. Render Navigation Tabs
+    // 7. Render Navigation Tabs
     function renderGroupTabs() {
       const container = document.getElementById("groupTabsContainer");
       if (!container) return;
@@ -1134,14 +1522,14 @@
       });
     }
 
-    // 4. Switch Current Active Group (Student View)
+    // Switch Current Active Group (Student View)
     function switchGroup(groupId) {
       currentGroupId = groupId;
       renderGroupTabs();
       renderCurrentGroupView();
     }
 
-    // 5. Render Current Group View Details & Form Fields
+    // Render Current Group View Details & Form Fields
     function renderCurrentGroupView() {
       const c = cases.find(item => item.id === currentGroupId) || cases[0];
       const data = studentData[currentGroupId] || {};
@@ -1185,7 +1573,6 @@
       lucide.createIcons();
     }
 
-    // Update the image preview box
     function updateEvidencePreview(imgSrc) {
       const previewImg = document.getElementById("evidencePreviewImg");
       const emptyState = document.getElementById("evidenceEmptyState");
@@ -1215,9 +1602,12 @@
       renderGroupTabs();
       updateSubmissionUi(newStatus);
 
+      // Send to Firebase with immediate priority
+      syncGroupToFirebase(currentGroupId, true);
+
       if (newStatus) {
         playSubmitSound();
-        showToast(`${currentGroupId}모둠 탐구 내용이 최종 제출되었습니다! 교사용 발표 대시보드에 즉시 반영됩니다.`, "success");
+        showToast(`${currentGroupId}모둠 탐구 내용이 최종 제출되었습니다! 교사용 발표 화면에 실시간 반영됩니다.`, "success");
       } else {
         showToast(`${currentGroupId}모둠 제출이 취소되어 수정 모드로 전환되었습니다.`, "info");
       }
@@ -1242,7 +1632,7 @@
       lucide.createIcons();
     }
 
-    // 6. Calculate Completion Percentage for a group
+    // Calculate Completion Percentage for a group
     function calculateGroupProgress(groupData) {
       if (!groupData) return 0;
       const fields = [
@@ -1261,12 +1651,10 @@
           filledCount++;
         }
       });
-      // Give bonus if evidence image is attached
       if (groupData.evidence_image && groupData.evidence_image.length > 5) {
         filledCount += 1;
       }
-      const totalRequired = 9;
-      return Math.min(100, Math.round((filledCount / totalRequired) * 100));
+      return Math.min(100, Math.round((filledCount / 9) * 100));
     }
 
     function updateProgressIndicators() {
@@ -1278,7 +1666,6 @@
       if (bar) bar.style.width = `${pct}%`;
       if (label) label.textContent = `${pct}%`;
 
-      // Update presentation stats if present view is active
       let totalSubmitted = 0;
       let totalPctSum = 0;
       for (let i = 1; i <= 5; i++) {
@@ -1294,7 +1681,7 @@
       if (presAvgEl) presAvgEl.textContent = `${avgPct}%`;
     }
 
-    // 7. Auto-save Input Listeners Setup
+    // Attach Auto-save & Keystroke Listeners
     function attachInputListeners() {
       const fieldIds = [
         "input_causes_natural",
@@ -1312,7 +1699,6 @@
         const el = document.getElementById(id);
         if (!el) return;
 
-        // Key map to studentData property
         const propName = id.replace("input_", "");
 
         el.addEventListener("input", () => {
@@ -1323,7 +1709,7 @@
       });
     }
 
-    // 8. Handle Evidence Image Upload (File or URL)
+    // Evidence Image Upload
     function handleEvidenceFileUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1340,6 +1726,7 @@
         studentData[currentGroupId].evidence_image = base64Data;
         updateEvidencePreview(base64Data);
         saveStudentData(true);
+        syncGroupToFirebase(currentGroupId, false);
       };
       reader.readAsDataURL(file);
     }
@@ -1355,6 +1742,7 @@
       studentData[currentGroupId].evidence_image = url;
       updateEvidencePreview(url);
       saveStudentData(true);
+      syncGroupToFirebase(currentGroupId, false);
     }
 
     function removeEvidenceImage() {
@@ -1363,6 +1751,7 @@
       document.getElementById("input_image_url").value = "";
       updateEvidencePreview("");
       saveStudentData(true);
+      syncGroupToFirebase(currentGroupId, false);
     }
 
     function clearCurrentGroupInputs() {
@@ -1384,17 +1773,17 @@
       saveStudentData();
       renderCurrentGroupView();
       renderGroupTabs();
+      syncGroupToFirebase(currentGroupId, true);
       showToast(`${currentGroupId}모둠의 내용이 비워졌습니다.`, "info");
     }
 
-    // 9. PRESENTATION DASHBOARD (View 2)
+    // 8. PRESENTATION DASHBOARD (View 2)
     function togglePresentationMode() {
       isPresentationMode = !isPresentationMode;
       const studentView = document.getElementById("studentView");
       const presView = document.getElementById("presentationView");
       const groupTabsBar = document.getElementById("groupTabsBar");
       const btn = document.getElementById("viewToggleBtn");
-      const text = document.getElementById("viewToggleText");
 
       if (isPresentationMode) {
         studentView.classList.add("hidden");
@@ -1426,7 +1815,8 @@
         const isSubmitted = !!d.is_submitted;
 
         const card = document.createElement("div");
-        card.className = `bg-white rounded-2xl border-2 ${isSubmitted ? 'border-emerald-300' : 'border-slate-200'} p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer group`;
+        card.id = `pres_card_group_${c.id}`;
+        card.className = `bg-white rounded-2xl border-2 ${isSubmitted ? 'border-emerald-300 ring-2 ring-emerald-100' : 'border-slate-200'} p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 cursor-pointer group`;
         card.onclick = () => openSlideModal(c.id);
 
         const manifestoText = d.spatial_justice_core && d.spatial_justice_core.trim().length > 0 
@@ -1443,7 +1833,7 @@
               <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-0.5 rounded-full ${
                 isSubmitted ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
               }">
-                ${isSubmitted ? '✓ 최종 제출 완료' : '작성 중'}
+                ${isSubmitted ? '✓ 최종 제출 완료' : '작성 중...'}
               </span>
             </div>
 
@@ -1491,7 +1881,7 @@
       lucide.createIcons();
     }
 
-    // 10. PPT PRESENTATION SLIDE MODAL
+    // 9. PPT PRESENTATION SLIDE MODAL
     function openSlideModal(groupId) {
       currentSlideIndex = groupId;
       renderSlideModalContent();
@@ -1524,7 +1914,7 @@
       const subBadge = document.getElementById("slideSubmittedBadge");
       if (d.is_submitted) {
         subBadge.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-        subBadge.textContent = "최종 제출 완료";
+        subBadge.textContent = "최종 제출 완료 ✓";
       } else {
         subBadge.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
         subBadge.textContent = "작성 진행 중";
@@ -1569,20 +1959,12 @@
     }
 
     function prevSlide() {
-      if (currentSlideIndex > 1) {
-        currentSlideIndex--;
-      } else {
-        currentSlideIndex = 5;
-      }
+      currentSlideIndex = currentSlideIndex > 1 ? currentSlideIndex - 1 : 5;
       renderSlideModalContent();
     }
 
     function nextSlide() {
-      if (currentSlideIndex < 5) {
-        currentSlideIndex++;
-      } else {
-        currentSlideIndex = 1;
-      }
+      currentSlideIndex = currentSlideIndex < 5 ? currentSlideIndex + 1 : 1;
       renderSlideModalContent();
     }
 
@@ -1595,7 +1977,6 @@
       }
     }
 
-    // Keyboard navigation (Arrow keys + Escape)
     window.addEventListener("keydown", (e) => {
       const modal = document.getElementById("slideModal");
       if (modal.classList.contains("hidden")) return;
@@ -1608,6 +1989,112 @@
         closeSlideModal();
       }
     });
+
+    // 10. FIREBASE MODAL LOGIC & URL GENERATOR
+    function openFirebaseModal() {
+      const modal = document.getElementById("firebaseModal");
+      modal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+
+      document.getElementById("input_room_code").value = currentRoomCode;
+      const savedConfig = localStorage.getItem(STORAGE_KEY_FB_CONFIG);
+      if (savedConfig) {
+        document.getElementById("input_firebase_config").value = savedConfig;
+      }
+      lucide.createIcons();
+    }
+
+    function closeFirebaseModal() {
+      document.getElementById("firebaseModal").classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    function toggleFirebaseGuide() {
+      const box = document.getElementById("firebaseGuideBox");
+      box.classList.toggle("hidden");
+    }
+
+    function generateRandomRoomCode() {
+      const code = "geo-" + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById("input_room_code").value = code;
+    }
+
+    function saveAndConnectFirebase() {
+      const rawConfig = document.getElementById("input_firebase_config").value.trim();
+      const roomCode = document.getElementById("input_room_code").value.trim() || "class-2026-1";
+
+      if (!rawConfig) {
+        showToast("Firebase 설정을 입력해 주세요.", "error");
+        return;
+      }
+
+      let parsedConfig = null;
+      try {
+        // Support directly pasting JSON or JS object like const firebaseConfig = { ... };
+        let cleanStr = rawConfig;
+        if (cleanStr.includes("const firebaseConfig") || cleanStr.includes("var firebaseConfig") || cleanStr.includes("let firebaseConfig")) {
+          const match = cleanStr.match(/\{[\s\S]*\}/);
+          if (match) cleanStr = match[0];
+        }
+        // Normalize unquoted keys if necessary
+        try {
+          parsedConfig = JSON.parse(cleanStr);
+        } catch (e1) {
+          // parse loose JS object using Function evaluation safely in isolated sandbox
+          parsedConfig = new Function("return (" + cleanStr + ");")();
+        }
+
+        if (!parsedConfig || typeof parsedConfig !== "object") {
+          throw new Error("유효한 객체 형식이 아닙니다.");
+        }
+      } catch (err) {
+        showToast("Firebase 설정 파싱 오류: 올바른 JSON 또는 JS 객체 형식인지 확인해 주세요.", "error");
+        return;
+      }
+
+      currentRoomCode = roomCode;
+      localStorage.setItem(STORAGE_KEY_ROOM, currentRoomCode);
+      localStorage.setItem(STORAGE_KEY_FB_CONFIG, JSON.stringify(parsedConfig, null, 2));
+
+      // Re-initialize Firebase
+      initFirebase();
+
+      // Push initial cases to Firebase
+      syncCasesToFirebase();
+
+      closeFirebaseModal();
+      showToast(`Firebase Realtime Database에 연결되었습니다! (룸: ${currentRoomCode})`, "success");
+    }
+
+    function disconnectFirebase() {
+      if (!confirm("Firebase 연결을 해제하시겠습니까? (로컬 단독 모드로 전환됩니다)")) return;
+      localStorage.removeItem(STORAGE_KEY_FB_CONFIG);
+      if (firebaseDb) {
+        try {
+          firebaseDb.goOffline();
+        } catch (e) {}
+        firebaseDb = null;
+      }
+      isFirebaseConnected = false;
+      updateFirebaseUiStatus(false, "Firebase 미연동");
+      closeFirebaseModal();
+      showToast("Firebase 연결이 해제되었습니다.", "info");
+    }
+
+    function copyGroupUrl(groupId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("room", currentRoomCode);
+      url.searchParams.set("group", groupId);
+      url.searchParams.delete("mode");
+
+      navigator.clipboard.writeText(url.toString())
+        .then(() => {
+          showToast(`${groupId}모둠 바로가기 링크가 클립보드에 복사되었습니다!`, "success");
+        })
+        .catch(() => {
+          prompt(`${groupId}모둠 바로가기 주소:`, url.toString());
+        });
+    }
 
     // 11. TEACHER ADMIN MODAL (Password Protected)
     function openTeacherModal() {
@@ -1700,6 +2187,10 @@
       localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
       renderCurrentGroupView();
       renderGroupTabs();
+
+      // Sync updated cases to Firebase
+      syncCasesToFirebase();
+
       showToast(`${c.groupNumber}모둠 사례가 성공적으로 업데이트되었습니다.`, "success");
     }
 
@@ -1714,22 +2205,27 @@
         localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
         loadTeacherEditFields(teacherEditingGroupId);
         renderCurrentGroupView();
+        syncCasesToFirebase();
         showToast("기본 사례 데이터로 복원되었습니다.", "info");
       }
     }
 
-    // Fast Action: Load Sample Student Answers for class demonstration
     function loadSampleStudentAnswers() {
-      if (!confirm("모든 5개 모둠에 시연용 모범 학생 답안을 채우시겠습니까? (기존 내용은 덮어씌워집니다)")) return;
+      if (!confirm("모든 5개 모둠에 시연용 모범 학생 답안을 채우시겠습니까? (기존 내용은 덮어씌워지며 Firebase에도 동기화됩니다)")) return;
       studentData = JSON.parse(JSON.stringify(SAMPLE_STUDENT_ANSWERS));
       saveStudentData();
       renderCurrentGroupView();
       renderGroupTabs();
+
+      // Push all 5 to Firebase
+      for (let i = 1; i <= 5; i++) {
+        syncGroupToFirebase(i, true);
+      }
+
       closeTeacherModal();
-      showToast("5개 모둠의 예시 학생 답안이 성공적으로 로드되었습니다!", "success");
+      showToast("5개 모둠의 예시 학생 답안이 성공적으로 로드되고 클라우드에 전송되었습니다!", "success");
     }
 
-    // Fast Action: Reset All Student Answers
     function resetAllStudentAnswers() {
       if (!confirm("정말로 모든 모둠의 작성 내용을 백지 상태로 초기화하시겠습니까?")) return;
       studentData = {};
@@ -1747,6 +2243,7 @@
           spatial_justice_core: "",
           is_submitted: false
         };
+        syncGroupToFirebase(i, false);
       }
       saveStudentData();
       renderCurrentGroupView();
@@ -1757,27 +2254,25 @@
 
     // 12. EXPORT & DOWNLOAD STANDALONE HTML
     function downloadSingleHtml() {
-      // Export current HTML with state preserved
       const clonedDoc = document.documentElement.cloneNode(true);
-      
-      // Inject current cases and studentData as defaults inside the script tag so offline works right away
       const htmlContent = "<!doctype html>\n" + clonedDoc.outerHTML;
       const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "도시환경문제_공간정의_수업앱.html";
+      a.download = "도시문제_공간정의_실시간수업앱.html";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      showToast("단일 HTML 파일이 다운로드되었습니다. USB에 담아 오프라인 교실에서도 바로 실행할 수 있습니다.", "success");
+      showToast("단일 HTML 파일이 다운로드되었습니다. USB에 담아 학생 태블릿이나 교실 PC에서 바로 실행할 수 있습니다.", "success");
     }
 
     function exportDataJson() {
       const bundle = {
         exportedAt: new Date().toISOString(),
+        roomCode: currentRoomCode,
         cases: cases,
         studentData: studentData
       };
@@ -1811,6 +2306,10 @@
           }
           renderCurrentGroupView();
           renderGroupTabs();
+          syncCasesToFirebase();
+          for (let i = 1; i <= 5; i++) {
+            syncGroupToFirebase(i, false);
+          }
           closeTeacherModal();
           showToast("JSON 수업 데이터를 성공적으로 불러왔습니다.", "success");
         } catch (err) {
@@ -1831,7 +2330,6 @@
     }
 
     function toggleTimer() {
-      const btn = document.getElementById("timerToggleBtn");
       const icon = document.getElementById("timerIcon");
 
       if (isTimerRunning) {
@@ -1868,7 +2366,7 @@
       lucide.createIcons();
     }
 
-    // 14. AUDIO SYNTH SOUNDS (Web Audio API, no external audio files required)
+    // 14. AUDIO SYNTH SOUNDS (Web Audio API)
     function playSubmitSound() {
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1882,10 +2380,10 @@
 
         const now = ctx.currentTime;
         osc.type = "sine";
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-        osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
-        osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.1);
+        osc.frequency.setValueAtTime(783.99, now + 0.2);
+        osc.frequency.setValueAtTime(1046.50, now + 0.3);
 
         gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
