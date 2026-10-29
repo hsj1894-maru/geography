@@ -109,14 +109,14 @@
         <!-- Header Actions: Firebase Status, Timer, Presentation Mode, Teacher Settings -->
         <div class="flex items-center gap-2 sm:gap-2.5">
           
-          <!-- Firebase Realtime Sync Status Badge -->
-          <button onclick="openFirebaseModal()" id="firebaseStatusBtn" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition shadow-2xs bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100" title="Firebase Realtime Database 연동 설정 열기">
+          <!-- Firebase Realtime Auto Sync Status Badge -->
+          <div id="firebaseStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs">
             <span class="relative flex h-2 w-2">
-              <span id="firebaseStatusPing" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span id="firebaseStatusDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              <span id="firebaseStatusPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span id="firebaseStatusDot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <span id="firebaseStatusText" class="truncate max-w-[130px] sm:max-w-none">Firebase 설정</span>
-          </button>
+            <span id="firebaseStatusText">실시간 자동 연동 중</span>
+          </div>
 
           <!-- Classroom Timer -->
           <div class="hidden md:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700">
@@ -729,225 +729,19 @@
 
   </div>
 
-  <!-- ==================== FIREBASE REALTIME SYNC MODAL ==================== -->
-  <div id="firebaseModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs overflow-y-auto flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
-      
-      <!-- Modal Header -->
-      <div class="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold">
-            <i data-lucide="flame" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-bold">Firebase Realtime Database 연동 설정</h3>
-            <p class="text-xs text-amber-100">학생 기기(태블릿/스마트폰)와 교사 발표 화면 간 실시간 제출 동기화</p>
-          </div>
-        </div>
-        <button onclick="closeFirebaseModal()" class="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-        
-        <!-- Current Connection Status Card -->
-        <div id="fbModalStatusCard" class="p-4 rounded-xl border flex items-center justify-between bg-amber-50 border-amber-200">
-          <div class="flex items-center gap-3">
-            <div id="fbModalStatusIcon" class="w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center">
-              <i data-lucide="wifi-off" class="w-4 h-4"></i>
-            </div>
-            <div>
-              <div id="fbModalStatusTitle" class="text-xs font-bold text-amber-900">Firebase 설정 필요 (현재 로컬 단독 모드)</div>
-              <div id="fbModalStatusSub" class="text-[11px] text-amber-700">Firebase Realtime Database 정보를 입력하면 학생들과 실시간 연결됩니다.</div>
-            </div>
-          </div>
-          <button id="fbDisconnectBtn" onclick="disconnectFirebase()" class="hidden px-2.5 py-1 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition">
-            연결 해제
-          </button>
-        </div>
-
-        <!-- Room Code Setting -->
-        <div class="space-y-1">
-          <label class="block text-xs font-bold text-slate-700">수업 룸(Room) 코드</label>
-          <div class="flex gap-2">
-            <input id="input_room_code" type="text" placeholder="예: geo-class-2026-1" class="flex-1 text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 font-mono font-semibold" />
-            <button onclick="generateRandomRoomCode()" class="px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
-              랜덤 생성
-            </button>
-          </div>
-          <p class="text-[11px] text-slate-500">교사와 5개 모둠 학생들이 동일한 룸 코드를 공유해야 실시간으로 데이터가 연결됩니다.</p>
-        </div>
-
-        <!-- Firebase Config Input (JSON or Database URL) -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label class="block text-xs font-bold text-slate-700">Firebase 설정 (firebaseConfig 객체 또는 Database URL)</label>
-            <span class="text-[11px] text-indigo-600 font-semibold cursor-pointer hover:underline" onclick="toggleFirebaseGuide()">
-              3단계 무료 생성 가이드 보기
-            </span>
-          </div>
-          <textarea id="input_firebase_config" rows="6" placeholder='Firebase 콘솔의 웹 앱 설정에서 복사한 객체를 그대로 붙여넣으세요:&#10;{&#10;  "apiKey": "AIzaSy...",&#10;  "databaseURL": "https://your-project-default-rtdb.firebaseio.com",&#10;  "projectId": "your-project-id"&#10;}' class="w-full text-xs font-mono p-3 rounded-xl border border-slate-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-100 leading-relaxed resize-none"></textarea>
-        </div>
-
-        <!-- How to get Firebase (Collapsible 3-step guide) -->
-        <div id="firebaseGuideBox" class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs text-slate-700">
-          <div class="font-bold text-slate-900 flex items-center gap-1.5">
-            <i data-lucide="book-open" class="w-4 h-4 text-amber-600"></i>
-            <span>초간단 무료 Firebase Realtime Database 3분 생성법</span>
-          </div>
-          <ol class="list-decimal list-inside space-y-1 text-slate-600 leading-relaxed text-[11px]">
-            <li><a href="https://console.firebase.google.com" target="_blank" class="text-indigo-600 font-bold underline">Firebase 콘솔</a>에 구글 계정으로 로그인 후 <strong>[프로젝트 만들기]</strong>를 클릭합니다.</li>
-            <li>왼쪽 메뉴에서 <strong>[빌드] → [Realtime Database]</strong>를 선택하고 [데이터베이스 만들기]를 누른 뒤, 보안 규칙을 아래와 같이 설정합니다:
-              <pre class="bg-slate-950 text-slate-200 p-2 rounded-md mt-1 font-mono text-[10px]">{ "rules": { ".read": true, ".write": true } }</pre>
-            </li>
-            <li><strong>[프로젝트 설정] (톱니바퀴) → [내 앱]</strong>에서 웹(&lt;/&gt;)을 추가한 뒤 표시되는 <code class="bg-slate-200 px-1 py-0.5 rounded text-slate-800">const firebaseConfig = { ... };</code> 내용을 복사하여 위 입력창에 붙여넣고 [저장 및 연결]을 누르면 완료됩니다!</li>
-          </ol>
-        </div>
-
-        <!-- Student Direct Link Generator -->
-        <div id="studentShareSection" class="p-4 rounded-xl bg-sky-50 border border-sky-100 space-y-2.5">
-          <div class="text-xs font-bold text-sky-900 flex items-center justify-between">
-            <span class="flex items-center gap-1.5">
+          <!-- Student Direct Link Generator for Teacher -->
+          <div class="p-4 rounded-xl bg-sky-50 border border-sky-100 space-y-2.5">
+            <div class="text-xs font-bold text-sky-900 flex items-center gap-1.5">
               <i data-lucide="share-2" class="w-4 h-4 text-sky-600"></i>
-              <span>학생 기기(태블릿/스마트폰) 모둠별 바로가기 주소</span>
-            </span>
-          </div>
-          <p class="text-[11px] text-sky-700">아래 모둠 버튼을 클릭하면 해당 모둠 화면으로 즉시 열리는 URL 링크가 복사됩니다 (학생들에게 QR 코드나 메신저로 전달 가능):</p>
-          <div class="grid grid-cols-5 gap-1.5">
-            <button onclick="copyGroupUrl(1)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">1모둠 복사</button>
-            <button onclick="copyGroupUrl(2)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">2모둠 복사</button>
-            <button onclick="copyGroupUrl(3)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">3모둠 복사</button>
-            <button onclick="copyGroupUrl(4)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">4모둠 복사</button>
-            <button onclick="copyGroupUrl(5)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">5모둠 복사</button>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex items-center justify-between">
-        <button onclick="closeFirebaseModal()" class="px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-200 rounded-lg transition">
-          닫기
-        </button>
-        <button onclick="saveAndConnectFirebase()" class="px-5 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition shadow-xs flex items-center gap-1.5">
-          <i data-lucide="check" class="w-4 h-4"></i>
-          <span>Firebase 저장 및 실시간 연결</span>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ==================== TEACHER ADMIN / EDIT MODAL ==================== -->
-  <div id="teacherModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs overflow-y-auto flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-3xl w-full border border-slate-200 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
-      
-      <!-- Modal Header -->
-      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center text-white font-bold">
-            <i data-lucide="lock" class="w-4 h-4"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-bold">교사 전용 수업 관리 및 사례 편집</h3>
-            <p class="text-xs text-slate-400">모둠별 제시 사례, 뉴스 링크, 참고 이미지 URL 편집 및 수업 보조 도구</p>
-          </div>
-        </div>
-        <button onclick="closeTeacherModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-        
-        <!-- Password Check Section (if locked) -->
-        <div id="teacherLockScreen" class="py-6 text-center space-y-4">
-          <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-600">
-            <i data-lucide="key-round" class="w-6 h-6"></i>
-          </div>
-          <div class="max-w-xs mx-auto space-y-2">
-            <h4 class="text-sm font-bold text-slate-800">교사 비밀번호 입력</h4>
-            <p class="text-xs text-slate-500">학생들의 실수 수정을 방지하기 위해 비밀번호를 입력해 주세요. (초기 비밀번호: 1234)</p>
-            <div class="flex gap-2 pt-2">
-              <input id="teacherPasswordInput" type="password" placeholder="비밀번호 (기본: 1234)" class="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100" onkeydown="if(event.key==='Enter') verifyTeacherPassword()" />
-              <button onclick="verifyTeacherPassword()" class="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition">확인</button>
+              <span>학생 기기(태블릿/스마트폰) 모둠별 바로가기 주소 복사</span>
             </div>
-            <p id="passwordErrorMsg" class="text-xs text-rose-600 hidden font-medium">비밀번호가 올바르지 않습니다.</p>
-          </div>
-        </div>
-
-        <!-- Teacher Controls Screen (after unlocked) -->
-        <div id="teacherUnlockedScreen" class="hidden space-y-6">
-
-          <!-- Quick Actions Bar for Teachers -->
-          <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div class="text-xs font-bold text-indigo-900">수업 진행용 빠른 버튼</div>
-              <div class="text-[11px] text-indigo-700">시연용 예시 답안을 채우거나 학생 작성 내용을 초기화할 수 있습니다.</div>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <button onclick="loadSampleStudentAnswers()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition" title="5개 모둠 전체에 고품질 모범 학생 답안 자동 채우기">
-                💡 예시 학생 답안 자동 채우기
-              </button>
-              <button onclick="resetAllStudentAnswers()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-rose-50 hover:text-rose-600 text-slate-700 border border-slate-200 transition">
-                🗑 학생 작성 내용 전체 초기화
-              </button>
-            </div>
-          </div>
-
-          <!-- Select which group to edit -->
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-2">편집할 모둠 사례 선택:</label>
-            <div class="grid grid-cols-5 gap-2" id="teacherGroupSelectTabs">
-              <!-- Rendered by JS -->
-            </div>
-          </div>
-
-          <!-- Selected group edit form -->
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-            <div class="flex items-center justify-between">
-              <span id="teacherEditingGroupLabel" class="text-xs font-bold text-slate-800">1모둠 사례 편집 중</span>
-              <button onclick="resetCurrentCaseToDefault()" class="text-xs text-slate-500 hover:text-rose-600 underline">이 모둠 초기 사례로 되돌리기</button>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">모둠 주제 명칭</label>
-              <input id="edit_case_topic" type="text" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">뉴스 헤드라인 (제목)</label>
-              <input id="edit_case_headline" type="text" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">핵심 통계 및 실태 수치</label>
-              <input id="edit_case_stats" type="text" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-slate-600 mb-1">배경 설명 요약 본문</label>
-              <textarea id="edit_case_summary" rows="3" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white resize-none"></textarea>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">관련 뉴스 원문 URL</label>
-                <input id="edit_case_news_url" type="url" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1">참고 사진 이미지 URL</label>
-                <input id="edit_case_image_url" type="url" class="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-white" />
-              </div>
-            </div>
-
-            <div class="pt-2 flex justify-end">
-              <button onclick="saveTeacherCaseChanges()" class="px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition">
-                사례 수정사항 저장 및 실시간 동기화
-              </button>
+            <p class="text-[11px] text-sky-700">모둠 버튼을 누르면 해당 모둠 화면으로 바로 연결되는 웹 링크가 복사됩니다 (학생들에게 QR 코드나 메신저로 전달 가능):</p>
+            <div class="grid grid-cols-5 gap-1.5">
+              <button onclick="copyGroupUrl(1)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">1모둠 복사</button>
+              <button onclick="copyGroupUrl(2)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">2모둠 복사</button>
+              <button onclick="copyGroupUrl(3)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">3모둠 복사</button>
+              <button onclick="copyGroupUrl(4)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">4모둠 복사</button>
+              <button onclick="copyGroupUrl(5)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">5모둠 복사</button>
             </div>
           </div>
 
@@ -1194,25 +988,16 @@
     // Firebase State
     let firebaseDb = null;
     let isFirebaseConnected = false;
-    let currentRoomCode = "class-2026-1";
     let firebaseDebounceTimers = {};
     let isRemoteUpdateInProgress = false;
 
     // 3. Initialize Data & Firebase
     function initData() {
-      // 1) Read URL params (support ?group=2&room=geo1&mode=present)
+      // 1) Read URL params (support ?group=2&mode=present)
       const urlParams = new URLSearchParams(window.location.search);
       const urlGroup = parseInt(urlParams.get("group"));
       if (urlGroup >= 1 && urlGroup <= 5) {
         currentGroupId = urlGroup;
-      }
-      const urlRoom = urlParams.get("room");
-      if (urlRoom && urlRoom.trim().length > 0) {
-        currentRoomCode = urlRoom.trim();
-        localStorage.setItem(STORAGE_KEY_ROOM, currentRoomCode);
-      } else {
-        const savedRoom = localStorage.getItem(STORAGE_KEY_ROOM);
-        if (savedRoom) currentRoomCode = savedRoom;
       }
 
       // 2) Load Cases
@@ -1267,60 +1052,38 @@
       initFirebase();
     }
 
-    // 4. FIREBASE REALTIME DATABASE INITIALIZATION
+    // 4. FIREBASE REALTIME DATABASE AUTO-INITIALIZATION (코드 입력 없이 자동 연동)
+    const DB_ROOT = "spatial_justice_class";
+
     function initFirebase() {
-      let config = DEFAULT_FIREBASE_CONFIG;
-      const savedConfigStr = localStorage.getItem(STORAGE_KEY_FB_CONFIG);
-      if (savedConfigStr) {
-        try {
-          config = JSON.parse(savedConfigStr);
-        } catch (e) {
-          config = DEFAULT_FIREBASE_CONFIG;
-        }
-      } else {
-        localStorage.setItem(STORAGE_KEY_FB_CONFIG, JSON.stringify(DEFAULT_FIREBASE_CONFIG, null, 2));
-      }
-
-      const roomInput = document.getElementById("input_room_code");
-      if (roomInput) roomInput.value = currentRoomCode;
-
-      const configInput = document.getElementById("input_firebase_config");
-      if (configInput) configInput.value = JSON.stringify(config, null, 2);
-
-      if (!config || (!config.databaseURL && !config.projectId)) {
-        updateFirebaseUiStatus(false, "Firebase 미연동");
-        return;
-      }
-
       try {
-        // Initialize Firebase App if not already initialized
         if (!firebase.apps.length) {
-          firebase.initializeApp(config);
+          firebase.initializeApp(DEFAULT_FIREBASE_CONFIG);
         }
         firebaseDb = firebase.database();
         isFirebaseConnected = true;
 
-        updateFirebaseUiStatus(true, `실시간 연동 (${currentRoomCode})`);
+        updateFirebaseUiStatus(true, "실시간 자동 연동 중");
         attachFirebaseListeners();
 
-        // Listen for connection state
+        // Listen for live online connection
         const connectedRef = firebaseDb.ref(".info/connected");
         connectedRef.on("value", (snap) => {
           if (snap.val() === true) {
-            updateFirebaseUiStatus(true, `실시간 연동 (${currentRoomCode})`);
+            updateFirebaseUiStatus(true, "실시간 자동 연동 중");
           } else {
             updateFirebaseUiStatus(false, "연결 대기 중...");
           }
         });
       } catch (err) {
         console.error("Firebase init failed:", err);
-        updateFirebaseUiStatus(false, "연결 실패");
+        updateFirebaseUiStatus(false, "오프라인 모드");
       }
     }
 
     function updateFirebaseUiStatus(connected, text) {
       isFirebaseConnected = connected;
-      const statusBtn = document.getElementById("firebaseStatusBtn");
+      const statusBadge = document.getElementById("firebaseStatusBadge");
       const statusDot = document.getElementById("firebaseStatusDot");
       const statusPing = document.getElementById("firebaseStatusPing");
       const statusText = document.getElementById("firebaseStatusText");
@@ -1328,48 +1091,19 @@
       const slideLiveBadge = document.getElementById("slideRealtimeIndicator");
 
       if (connected) {
-        statusBtn.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition shadow-2xs bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100";
-        statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
-        statusPing.classList.remove("hidden");
-        statusText.textContent = text;
+        if (statusBadge) statusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs";
+        if (statusDot) statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
+        if (statusPing) statusPing.classList.remove("hidden");
+        if (statusText) statusText.textContent = text || "실시간 자동 연동 중";
         if (presLiveBadge) presLiveBadge.classList.remove("hidden");
         if (slideLiveBadge) slideLiveBadge.classList.remove("hidden");
-
-        // Modal status card
-        const mCard = document.getElementById("fbModalStatusCard");
-        const mIcon = document.getElementById("fbModalStatusIcon");
-        const mTitle = document.getElementById("fbModalStatusTitle");
-        const mSub = document.getElementById("fbModalStatusSub");
-        const dBtn = document.getElementById("fbDisconnectBtn");
-        if (mCard) {
-          mCard.className = "p-4 rounded-xl border flex items-center justify-between bg-emerald-50 border-emerald-200";
-          mIcon.className = "w-8 h-8 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center";
-          mIcon.innerHTML = `<i data-lucide="wifi" class="w-4 h-4"></i>`;
-          mTitle.textContent = `Firebase Realtime Database 정상 연결됨 (룸: ${currentRoomCode})`;
-          mSub.textContent = "학생 기기의 입력 및 제출 내용이 교사 발표 화면에 실시간으로 반영됩니다.";
-          if (dBtn) dBtn.classList.remove("hidden");
-        }
       } else {
-        statusBtn.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition shadow-2xs bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100";
-        statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
-        statusPing.classList.add("hidden");
-        statusText.textContent = text || "Firebase 설정";
+        if (statusBadge) statusBadge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border bg-slate-100 text-slate-700 border-slate-300 shadow-2xs";
+        if (statusDot) statusDot.className = "relative inline-flex rounded-full h-2 w-2 bg-slate-400";
+        if (statusPing) statusPing.classList.add("hidden");
+        if (statusText) statusText.textContent = text || "오프라인 모드";
         if (presLiveBadge) presLiveBadge.classList.add("hidden");
         if (slideLiveBadge) slideLiveBadge.classList.add("hidden");
-
-        const mCard = document.getElementById("fbModalStatusCard");
-        const mIcon = document.getElementById("fbModalStatusIcon");
-        const mTitle = document.getElementById("fbModalStatusTitle");
-        const mSub = document.getElementById("fbModalStatusSub");
-        const dBtn = document.getElementById("fbDisconnectBtn");
-        if (mCard) {
-          mCard.className = "p-4 rounded-xl border flex items-center justify-between bg-amber-50 border-amber-200";
-          mIcon.className = "w-8 h-8 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center";
-          mIcon.innerHTML = `<i data-lucide="wifi-off" class="w-4 h-4"></i>`;
-          mTitle.textContent = "Firebase 설정 필요 (현재 로컬 단독 모드)";
-          mSub.textContent = "Firebase Realtime Database 정보를 입력하면 학생들과 실시간 연결됩니다.";
-          if (dBtn) dBtn.classList.add("hidden");
-        }
       }
       lucide.createIcons();
     }
@@ -1377,10 +1111,10 @@
     // 5. ATTACH FIREBASE REALTIME LISTENERS (onValue)
     function attachFirebaseListeners() {
       if (!firebaseDb) return;
-      const roomRef = firebaseDb.ref(`classes/${currentRoomCode}`);
+      const dbRef = firebaseDb.ref(DB_ROOT);
 
-      // 1) Listen for group submissions and inputs in real time
-      roomRef.child("groups").on("value", (snapshot) => {
+      // 1) Listen for group submissions and inputs from any device
+      dbRef.child("groups").on("value", (snapshot) => {
         const remoteData = snapshot.val();
         if (!remoteData) return;
 
@@ -1390,14 +1124,13 @@
         Object.keys(remoteData).forEach((gid) => {
           const numId = parseInt(gid);
           if (numId >= 1 && numId <= 5) {
-            // Check if submission status changed
             const prevSub = studentData[numId]?.is_submitted;
             const newSub = remoteData[gid]?.is_submitted;
 
             studentData[numId] = Object.assign({}, studentData[numId] || {}, remoteData[gid]);
             hasChanges = true;
 
-            // If a group just submitted, show celebratory toast & chime in presentation mode
+            // Chime when a student submits
             if (!prevSub && newSub) {
               if (isPresentationMode) {
                 playSubmitSound();
@@ -1412,24 +1145,20 @@
           renderGroupTabs();
           updateProgressIndicators();
 
-          // If in Presentation Mode, re-render cards
           if (isPresentationMode) {
             renderPresentationDashboardCards();
           }
 
-          // If Fullscreen Slide Modal is currently viewing one of the updated groups, refresh slide live!
           const slideModal = document.getElementById("slideModal");
           if (slideModal && !slideModal.classList.contains("hidden")) {
             renderSlideModalContent();
           }
 
-          // If in Student View, refresh fields only if the user is not currently typing into them
           if (!isPresentationMode) {
-            const activeTag = document.activeElement ? document.activeElement.tagName : "";
-            if (activeTag !== "TEXTAREA" && activeTag !== "INPUT") {
+            const isTyping = document.activeElement && (document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "INPUT");
+            if (!isTyping) {
               renderCurrentGroupView();
             } else {
-              // Update submission UI and preview without interrupting typing
               updateSubmissionUi(studentData[currentGroupId]?.is_submitted);
               updateEvidencePreview(studentData[currentGroupId]?.evidence_image);
             }
@@ -1438,8 +1167,8 @@
         isRemoteUpdateInProgress = false;
       });
 
-      // 2) Listen for teacher case edits in real time
-      roomRef.child("cases").on("value", (snapshot) => {
+      // 2) Listen for teacher case edits
+      dbRef.child("cases").on("value", (snapshot) => {
         const remoteCases = snapshot.val();
         if (remoteCases && Array.isArray(remoteCases) && remoteCases.length > 0) {
           cases = remoteCases;
@@ -1460,10 +1189,10 @@
         clientTimestamp: Date.now()
       });
 
-      firebaseDb.ref(`classes/${currentRoomCode}/groups/${groupId}`).set(payload)
+      firebaseDb.ref(`${DB_ROOT}/groups/${groupId}`).set(payload)
         .then(() => {
           if (isFinalSubmit) {
-            showToast(`${groupId}모둠 탐구가 실시간으로 교사 발표 화면에 전송되었습니다!`, "success");
+            showToast(`${groupId}모둠 제출이 교사 발표 화면에 실시간 전송되었습니다!`, "success");
           }
         })
         .catch((err) => {
@@ -1473,7 +1202,7 @@
 
     function syncCasesToFirebase() {
       if (!firebaseDb || !isFirebaseConnected) return;
-      firebaseDb.ref(`classes/${currentRoomCode}/cases`).set(cases)
+      firebaseDb.ref(`${DB_ROOT}/cases`).set(cases)
         .then(() => {
           showToast("수정된 사례가 모든 학생 기기에 실시간 반영되었습니다.", "success");
         })
@@ -2010,106 +1739,15 @@
       }
     });
 
-    // 10. FIREBASE MODAL LOGIC & URL GENERATOR
-    function openFirebaseModal() {
-      const modal = document.getElementById("firebaseModal");
-      modal.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
-
-      document.getElementById("input_room_code").value = currentRoomCode;
-      const savedConfig = localStorage.getItem(STORAGE_KEY_FB_CONFIG);
-      if (savedConfig) {
-        document.getElementById("input_firebase_config").value = savedConfig;
-      }
-      lucide.createIcons();
-    }
-
-    function closeFirebaseModal() {
-      document.getElementById("firebaseModal").classList.add("hidden");
-      document.body.style.overflow = "";
-    }
-
-    function toggleFirebaseGuide() {
-      const box = document.getElementById("firebaseGuideBox");
-      box.classList.toggle("hidden");
-    }
-
-    function generateRandomRoomCode() {
-      const code = "geo-" + Math.floor(1000 + Math.random() * 9000);
-      document.getElementById("input_room_code").value = code;
-    }
-
-    function saveAndConnectFirebase() {
-      const rawConfig = document.getElementById("input_firebase_config").value.trim();
-      const roomCode = document.getElementById("input_room_code").value.trim() || "class-2026-1";
-
-      if (!rawConfig) {
-        showToast("Firebase 설정을 입력해 주세요.", "error");
-        return;
-      }
-
-      let parsedConfig = null;
-      try {
-        // Support directly pasting JSON or JS object like const firebaseConfig = { ... };
-        let cleanStr = rawConfig;
-        if (cleanStr.includes("const firebaseConfig") || cleanStr.includes("var firebaseConfig") || cleanStr.includes("let firebaseConfig")) {
-          const match = cleanStr.match(/\{[\s\S]*\}/);
-          if (match) cleanStr = match[0];
-        }
-        // Normalize unquoted keys if necessary
-        try {
-          parsedConfig = JSON.parse(cleanStr);
-        } catch (e1) {
-          // parse loose JS object using Function evaluation safely in isolated sandbox
-          parsedConfig = new Function("return (" + cleanStr + ");")();
-        }
-
-        if (!parsedConfig || typeof parsedConfig !== "object") {
-          throw new Error("유효한 객체 형식이 아닙니다.");
-        }
-      } catch (err) {
-        showToast("Firebase 설정 파싱 오류: 올바른 JSON 또는 JS 객체 형식인지 확인해 주세요.", "error");
-        return;
-      }
-
-      currentRoomCode = roomCode;
-      localStorage.setItem(STORAGE_KEY_ROOM, currentRoomCode);
-      localStorage.setItem(STORAGE_KEY_FB_CONFIG, JSON.stringify(parsedConfig, null, 2));
-
-      // Re-initialize Firebase
-      initFirebase();
-
-      // Push initial cases to Firebase
-      syncCasesToFirebase();
-
-      closeFirebaseModal();
-      showToast(`Firebase Realtime Database에 연결되었습니다! (룸: ${currentRoomCode})`, "success");
-    }
-
-    function disconnectFirebase() {
-      if (!confirm("Firebase 연결을 해제하시겠습니까? (로컬 단독 모드로 전환됩니다)")) return;
-      localStorage.removeItem(STORAGE_KEY_FB_CONFIG);
-      if (firebaseDb) {
-        try {
-          firebaseDb.goOffline();
-        } catch (e) {}
-        firebaseDb = null;
-      }
-      isFirebaseConnected = false;
-      updateFirebaseUiStatus(false, "Firebase 미연동");
-      closeFirebaseModal();
-      showToast("Firebase 연결이 해제되었습니다.", "info");
-    }
-
     function copyGroupUrl(groupId) {
       const url = new URL(window.location.href);
-      url.searchParams.set("room", currentRoomCode);
       url.searchParams.set("group", groupId);
       url.searchParams.delete("mode");
+      url.searchParams.delete("room");
 
       navigator.clipboard.writeText(url.toString())
         .then(() => {
-          showToast(`${groupId}모둠 바로가기 링크가 클립보드에 복사되었습니다!`, "success");
+          showToast(`${groupId}모둠 바로가기 링크가 복사되었습니다! (학생 기기에 전송하세요)`, "success");
         })
         .catch(() => {
           prompt(`${groupId}모둠 바로가기 주소:`, url.toString());
@@ -2292,7 +1930,6 @@
     function exportDataJson() {
       const bundle = {
         exportedAt: new Date().toISOString(),
-        roomCode: currentRoomCode,
         cases: cases,
         studentData: studentData
       };
