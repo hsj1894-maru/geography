@@ -121,9 +121,9 @@
           </div>
 
           <!-- Teacher Admin Modal Trigger -->
-          <button onclick="openTeacherModal()" class="inline-flex items-center gap-1.5 p-2 sm:px-3 sm:py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs" title="교사용 수업 관리">
-            <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
-            <span class="hidden sm:inline">교사 관리</span>
+          <button onclick="openTeacherModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs cursor-pointer" title="교사용 수업 관리">
+            <i data-lucide="settings" class="w-4 h-4 text-slate-600"></i>
+            <span>교사 관리</span>
           </button>
 
           <!-- Mode Switch Button: Student Inquiry vs Presentation Mode -->
@@ -712,38 +712,162 @@
 
   </div>
 
-          <!-- Student Direct Link Generator for Teacher -->
-          <div class="p-4 rounded-xl bg-sky-50 border border-sky-100 space-y-2.5">
-            <div class="text-xs font-bold text-sky-900 flex items-center gap-1.5">
-              <i data-lucide="share-2" class="w-4 h-4 text-sky-600"></i>
-              <span>학생 기기(태블릿/스마트폰) 모둠별 바로가기 주소 복사</span>
-            </div>
-            <p class="text-[11px] text-sky-700">모둠 버튼을 누르면 해당 모둠 화면으로 바로 연결되는 웹 링크가 복사됩니다 (학생들에게 QR 코드나 메신저로 전달 가능):</p>
-            <div class="grid grid-cols-5 gap-1.5">
-              <button onclick="copyGroupUrl(1)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">1모둠 복사</button>
-              <button onclick="copyGroupUrl(2)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">2모둠 복사</button>
-              <button onclick="copyGroupUrl(3)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">3모둠 복사</button>
-              <button onclick="copyGroupUrl(4)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">4모둠 복사</button>
-              <button onclick="copyGroupUrl(5)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">5모둠 복사</button>
-            </div>
+  <!-- ==================== TEACHER ADMIN & CASE EDIT MODAL ==================== -->
+  <div id="teacherModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs overflow-y-auto flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150 my-8">
+      
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-slate-900 to-indigo-950 px-6 py-4 flex items-center justify-between text-white">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
           </div>
-
-          <!-- Backup & Restore Data (JSON) -->
-          <div class="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <span class="text-slate-500 font-medium">수업 데이터 백업 및 관리:</span>
-            <div class="flex items-center gap-2">
-              <button onclick="exportDataJson()" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition">
-                JSON 파일로 내보내기
-              </button>
-              <label class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 cursor-pointer transition">
-                JSON 파일 불러오기
-                <input type="file" accept=".json" class="hidden" onchange="importDataJson(event)" />
-              </label>
-            </div>
+          <div>
+            <h3 class="font-bold text-sm tracking-tight text-white flex items-center gap-1.5">
+              교사 전용 수업 관리 및 사례 편집
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-600/60 text-indigo-200 font-medium">관리자</span>
+            </h3>
+            <p class="text-xs text-slate-300">모둠별 탐구 사례 내용 수정 및 수업 진행 설정</p>
           </div>
+        </div>
+        <button onclick="closeTeacherModal()" class="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
 
+      <!-- 1. Password Lock Screen -->
+      <div id="teacherLockScreen" class="p-8 text-center space-y-4">
+        <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto border border-indigo-100">
+          <i data-lucide="lock" class="w-6 h-6"></i>
+        </div>
+        <div class="space-y-1">
+          <h4 class="font-bold text-slate-800 text-base">교사 인증 비밀번호 입력</h4>
+          <p class="text-xs text-slate-500">수업 사례 수정 및 데이터 관리를 위해 비밀번호를 입력해 주세요.<br><span class="text-indigo-600 font-medium">(초기 비밀번호: 1234)</span></p>
+        </div>
+        <div class="max-w-xs mx-auto space-y-2">
+          <input type="password" id="teacherPasswordInput" placeholder="비밀번호 입력 (기본: 1234)" 
+            onkeydown="if(event.key === 'Enter') verifyTeacherPassword()"
+            class="w-full text-center px-4 py-2.5 text-sm border border-slate-300 rounded-xl focus:outline-indigo-500 focus:ring-2 focus:ring-indigo-100 transition tracking-widest" />
+          <p id="passwordErrorMsg" class="hidden text-xs text-rose-500 font-medium">비밀번호가 일치하지 않습니다. 다시 입력해 주세요.</p>
+        </div>
+        <div class="pt-2 flex justify-center gap-2">
+          <button onclick="verifyTeacherPassword()" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-xs flex items-center gap-1.5">
+            <i data-lucide="key" class="w-4 h-4"></i>
+            <span>인증 및 관리창 열기</span>
+          </button>
+          <button onclick="closeTeacherModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">
+            취소
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Unlocked Screen -->
+      <div id="teacherUnlockedScreen" class="hidden p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+        <!-- Quick action toolbar -->
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2 text-slate-700 font-semibold">
+            <i data-lucide="sparkles" class="w-4 h-4 text-indigo-600"></i>
+            <span>수업 시뮬레이션 및 데이터 제어:</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="loadSampleStudentAnswers()" class="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold border border-indigo-200 transition">
+              예시 학생 데이터 전체 채우기
+            </button>
+            <button onclick="resetAllStudentAnswers()" class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 font-bold border border-rose-200 transition">
+              학생 작성 내용 전체 초기화
+            </button>
+          </div>
         </div>
 
+        <!-- Group Select Tabs -->
+        <div class="space-y-2">
+          <label class="block text-xs font-bold text-slate-700">편집할 모둠 선택:</label>
+          <div id="teacherGroupSelectTabs" class="grid grid-cols-5 gap-2">
+            <!-- Dynamically populated buttons 1~5 -->
+          </div>
+        </div>
+
+        <!-- Case Edit Form -->
+        <div class="p-5 rounded-2xl bg-indigo-50/40 border border-indigo-100 space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-indigo-100">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+              <h4 id="teacherEditingGroupLabel" class="text-sm font-bold text-indigo-950">1모둠 사례 편집 중</h4>
+            </div>
+            <button onclick="resetCurrentCaseToDefault()" class="text-xs text-slate-500 hover:text-rose-600 underline transition">
+              이 모둠 기본 사례로 복원
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="space-y-1">
+              <label class="font-bold text-slate-700">탐구 주제 (Topic)</label>
+              <input id="edit_case_topic" type="text" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500" />
+            </div>
+            <div class="space-y-1">
+              <label class="font-bold text-slate-700">뉴스 헤드라인 (Headline)</label>
+              <input id="edit_case_headline" type="text" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500" />
+            </div>
+          </div>
+
+          <div class="space-y-1 text-xs">
+            <label class="font-bold text-slate-700">핵심 통계 및 현황 지표 (Stats)</label>
+            <input id="edit_case_stats" type="text" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500" />
+          </div>
+
+          <div class="space-y-1 text-xs">
+            <label class="font-bold text-slate-700">사례 상세 내용 및 배경 설명 (Summary)</label>
+            <textarea id="edit_case_summary" rows="3" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="space-y-1">
+              <label class="font-bold text-slate-700">외부 뉴스 기사 링크 URL</label>
+              <input id="edit_case_news_url" type="url" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500" />
+            </div>
+            <div class="space-y-1">
+              <label class="font-bold text-slate-700">참고 이미지 URL</label>
+              <input id="edit_case_image_url" type="url" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500" />
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button onclick="saveTeacherCaseChanges()" class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>수정 사항 저장 및 클라우드 반영</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Student Direct Link Generator for Teacher -->
+        <div class="p-4 rounded-xl bg-sky-50 border border-sky-100 space-y-2.5">
+          <div class="text-xs font-bold text-sky-900 flex items-center gap-1.5">
+            <i data-lucide="share-2" class="w-4 h-4 text-sky-600"></i>
+            <span>학생 기기(태블릿/스마트폰) 모둠별 바로가기 주소 복사</span>
+          </div>
+          <p class="text-[11px] text-sky-700">모둠 버튼을 누르면 해당 모둠 화면으로 바로 연결되는 웹 링크가 복사됩니다 (학생들에게 QR 코드나 메신저로 전달 가능):</p>
+          <div class="grid grid-cols-5 gap-1.5">
+            <button onclick="copyGroupUrl(1)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">1모둠 복사</button>
+            <button onclick="copyGroupUrl(2)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">2모둠 복사</button>
+            <button onclick="copyGroupUrl(3)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">3모둠 복사</button>
+            <button onclick="copyGroupUrl(4)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">4모둠 복사</button>
+            <button onclick="copyGroupUrl(5)" class="p-1.5 text-xs font-bold rounded-lg bg-white border border-sky-200 text-sky-800 hover:bg-sky-100 transition shadow-2xs">5모둠 복사</button>
+          </div>
+        </div>
+
+        <!-- Backup & Restore Data (JSON) -->
+        <div class="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <span class="text-slate-500 font-medium">수업 데이터 백업 및 관리:</span>
+          <div class="flex items-center gap-2">
+            <button onclick="exportDataJson()" class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition">
+              JSON 파일로 내보내기
+            </button>
+            <label class="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 cursor-pointer transition">
+              JSON 파일 불러오기
+              <input type="file" accept=".json" class="hidden" onchange="importDataJson(event)" />
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- Modal Footer -->
