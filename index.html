@@ -1169,6 +1169,18 @@
     const STORAGE_KEY_FB_CONFIG = "spatial_justice_firebase_config_v1";
     const STORAGE_KEY_ROOM = "spatial_justice_room_code_v1";
 
+    // Integrated Firebase Realtime Database Configuration
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyA3HfSDlkwhto7R759it7JhmIDGOaLxo-c",
+      authDomain: "geography-1fc3d.firebaseapp.com",
+      databaseURL: "https://geography-1fc3d-default-rtdb.firebaseio.com",
+      projectId: "geography-1fc3d",
+      storageBucket: "geography-1fc3d.firebasestorage.app",
+      messagingSenderId: "13827843440",
+      appId: "1:13827843440:web:7412805874787f06cf5bb5",
+      measurementId: "G-4BW4565M09"
+    };
+
     let cases = [];
     let studentData = {};
     let currentGroupId = 1;
@@ -1257,22 +1269,30 @@
 
     // 4. FIREBASE REALTIME DATABASE INITIALIZATION
     function initFirebase() {
+      let config = DEFAULT_FIREBASE_CONFIG;
       const savedConfigStr = localStorage.getItem(STORAGE_KEY_FB_CONFIG);
+      if (savedConfigStr) {
+        try {
+          config = JSON.parse(savedConfigStr);
+        } catch (e) {
+          config = DEFAULT_FIREBASE_CONFIG;
+        }
+      } else {
+        localStorage.setItem(STORAGE_KEY_FB_CONFIG, JSON.stringify(DEFAULT_FIREBASE_CONFIG, null, 2));
+      }
+
       const roomInput = document.getElementById("input_room_code");
       if (roomInput) roomInput.value = currentRoomCode;
 
-      if (!savedConfigStr) {
+      const configInput = document.getElementById("input_firebase_config");
+      if (configInput) configInput.value = JSON.stringify(config, null, 2);
+
+      if (!config || (!config.databaseURL && !config.projectId)) {
         updateFirebaseUiStatus(false, "Firebase 미연동");
         return;
       }
 
       try {
-        const config = JSON.parse(savedConfigStr);
-        if (!config.databaseURL && !config.projectId) {
-          updateFirebaseUiStatus(false, "설정 오류");
-          return;
-        }
-
         // Initialize Firebase App if not already initialized
         if (!firebase.apps.length) {
           firebase.initializeApp(config);
@@ -1289,7 +1309,7 @@
           if (snap.val() === true) {
             updateFirebaseUiStatus(true, `실시간 연동 (${currentRoomCode})`);
           } else {
-            updateFirebaseUiStatus(false, "연결 재시도 중...");
+            updateFirebaseUiStatus(false, "연결 대기 중...");
           }
         });
       } catch (err) {
