@@ -194,12 +194,11 @@
               아스팔트와 고층 빌딩이 밀집한 도심부는 인공열과 복사열로 열섬 현상이 극심합니다. 특히 에어컨과 환기 시설이 부족한 돈의동·창신동 등 도심 쪽방촌 거주민은 폭염 재난의 직격탄을 맞고 있습니다.
             </p>
 
-            <!-- External News Link & Help Pill -->
-            <div class="flex flex-wrap items-center gap-3 pt-1">
-              <a id="caseNewsLink" href="https://www.khan.co.kr" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition">
-                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-                <span>사례 뉴스 기사 원문 보기</span>
-              </a>
+            <!-- External News Links & Help Pill -->
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              <div id="caseNewsLinksContainer" class="flex flex-wrap items-center gap-2">
+                <!-- Dynamically populated news article links -->
+              </div>
               <span class="text-xs text-slate-500 flex items-center gap-1">
                 <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
                 <span>사례를 꼼꼼히 읽고 아래 6가지 탐구 항목을 분석해 보세요.</span>
@@ -817,9 +816,22 @@
             <textarea id="edit_case_summary" rows="3" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500"></textarea>
           </div>
 
-          <div class="space-y-1 text-xs">
-            <label class="font-bold text-slate-700">외부 뉴스 기사 링크 URL</label>
-            <input id="edit_case_news_url" type="url" placeholder="https://..." class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:outline-indigo-500" />
+          <!-- News Articles List (Multiple Links Support) -->
+          <div class="space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <label class="font-bold text-slate-700 flex items-center gap-1.5">
+                <i data-lucide="newspaper" class="w-4 h-4 text-indigo-600"></i>
+                <span>사례 뉴스 기사 원문 링크 목록</span>
+              </label>
+              <button type="button" onclick="addTeacherNewsArticleRow()" class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg border border-indigo-200 transition cursor-pointer text-xs">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>기사 추가</span>
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500">기사를 여러 개 추가하면 학생 화면에 [사례 뉴스 기사 원문 보기] 버튼이 여러 개 생성됩니다.</p>
+            <div id="teacherNewsArticlesContainer" class="space-y-2">
+              <!-- Dynamically populated article input rows -->
+            </div>
           </div>
 
           <!-- Case Image File Upload & Preview Section -->
@@ -1418,6 +1430,49 @@
       renderCurrentGroupView();
     }
 
+    // News Articles Utilities
+    function getCaseNewsList(c) {
+      if (!c) return [];
+      if (Array.isArray(c.newsList) && c.newsList.length > 0) {
+        return c.newsList.filter(item => item && (item.url || item.title));
+      }
+      if (c.newsUrl && typeof c.newsUrl === "string" && c.newsUrl.trim().length > 0) {
+        return [{ title: "사례 뉴스 기사 원문 보기", url: c.newsUrl.trim() }];
+      }
+      return [];
+    }
+
+    function renderCaseNewsLinks(c) {
+      const container = document.getElementById("caseNewsLinksContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const list = getCaseNewsList(c);
+      if (list.length === 0) {
+        container.innerHTML = `<span class="text-xs text-slate-400 italic font-medium py-1">등록된 외부 기사 링크가 없습니다.</span>`;
+        return;
+      }
+
+      list.forEach((item, index) => {
+        const link = document.createElement("a");
+        link.href = item.url && item.url.trim().length > 0 ? item.url.trim() : "#";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition shadow-2xs hover:shadow-xs";
+        
+        const labelText = item.title && item.title.trim().length > 0 
+          ? item.title.trim() 
+          : (list.length > 1 ? `사례 기사 ${index + 1} 원문 보기` : "사례 뉴스 기사 원문 보기");
+
+        link.innerHTML = `
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <span>${escapeHtml(labelText)}</span>
+        `;
+        container.appendChild(link);
+      });
+      lucide.createIcons();
+    }
+
     // Render Current Group View Details & Form Fields
     function renderCurrentGroupView() {
       const c = cases.find(item => item.id === currentGroupId) || cases[0];
@@ -1431,7 +1486,9 @@
       document.getElementById("caseHeadline").textContent = c.headline;
       document.getElementById("caseStats").textContent = c.stats;
       document.getElementById("caseSummary").textContent = c.summary;
-      document.getElementById("caseNewsLink").href = c.newsUrl;
+      
+      // Render multiple news article links
+      renderCaseNewsLinks(c);
 
       const caseImgEl = document.getElementById("caseImage");
       if (caseImgEl) {
@@ -2008,8 +2065,10 @@
       document.getElementById("edit_case_headline").value = c.headline || "";
       document.getElementById("edit_case_stats").value = c.stats || "";
       document.getElementById("edit_case_summary").value = c.summary || "";
-      document.getElementById("edit_case_news_url").value = c.newsUrl || "";
       document.getElementById("edit_case_image_url").value = c.imageUrl || "";
+
+      // Load multiple news articles
+      renderTeacherNewsArticlesInputs(getCaseNewsList(c));
 
       updateTeacherCaseImagePreview(c.imageUrl);
       const statusEl = document.getElementById("teacherUploadStatusText");
@@ -2017,6 +2076,70 @@
         statusEl.textContent = (c.imageUrl && c.imageUrl.startsWith("data:image")) 
           ? "직접 업로드된 사진 파일 적용됨" 
           : "JPG, PNG, WebP 사진 파일 선택";
+      }
+    }
+
+    function renderTeacherNewsArticlesInputs(newsList) {
+      const container = document.getElementById("teacherNewsArticlesContainer");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const list = (newsList && newsList.length > 0) ? newsList : [{ title: "", url: "" }];
+
+      list.forEach((item, index) => {
+        appendNewsArticleRow(item.title || "", item.url || "", index + 1);
+      });
+      lucide.createIcons();
+    }
+
+    function appendNewsArticleRow(title = "", url = "", rowNum = null) {
+      const container = document.getElementById("teacherNewsArticlesContainer");
+      if (!container) return;
+
+      const currentCount = container.querySelectorAll(".news-article-row").length;
+      const num = rowNum || (currentCount + 1);
+
+      const row = document.createElement("div");
+      row.className = "flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2.5 bg-white rounded-xl border border-slate-200 shadow-2xs news-article-row";
+      row.innerHTML = `
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <span class="w-6 h-6 rounded-md bg-indigo-50 text-indigo-700 flex items-center justify-center text-[11px] font-extrabold shrink-0 row-index">
+            ${num}
+          </span>
+          <input type="text" placeholder="기사 제목/언론사 (예: 경향신문 원문)" value="${escapeHtml(title)}" 
+            class="w-full sm:w-48 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-indigo-500 article-title-input" />
+        </div>
+        <div class="flex items-center gap-1.5 flex-1 min-w-0">
+          <input type="url" placeholder="https://기사링크..." value="${escapeHtml(url)}" 
+            class="flex-1 min-w-0 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-indigo-500 article-url-input" />
+          <button type="button" onclick="removeTeacherNewsArticleRow(this)" title="이 기사 삭제" 
+            class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition shrink-0 cursor-pointer">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `;
+      container.appendChild(row);
+      lucide.createIcons();
+    }
+
+    function addTeacherNewsArticleRow() {
+      appendNewsArticleRow("", "");
+    }
+
+    function removeTeacherNewsArticleRow(btn) {
+      const row = btn.closest(".news-article-row");
+      if (row) {
+        row.remove();
+        const container = document.getElementById("teacherNewsArticlesContainer");
+        const rows = container.querySelectorAll(".news-article-row");
+        if (rows.length === 0) {
+          appendNewsArticleRow("", "");
+        } else {
+          rows.forEach((r, idx) => {
+            const idxEl = r.querySelector(".row-index");
+            if (idxEl) idxEl.textContent = idx + 1;
+          });
+        }
       }
     }
 
@@ -2076,8 +2199,20 @@
       c.headline = document.getElementById("edit_case_headline").value.trim();
       c.stats = document.getElementById("edit_case_stats").value.trim();
       c.summary = document.getElementById("edit_case_summary").value.trim();
-      c.newsUrl = document.getElementById("edit_case_news_url").value.trim();
       c.imageUrl = document.getElementById("edit_case_image_url").value.trim();
+
+      // Read all news articles
+      const rows = document.querySelectorAll("#teacherNewsArticlesContainer .news-article-row");
+      const newsList = [];
+      rows.forEach(r => {
+        const title = r.querySelector(".article-title-input")?.value.trim() || "";
+        const url = r.querySelector(".article-url-input")?.value.trim() || "";
+        if (url.length > 0 || title.length > 0) {
+          newsList.push({ title, url });
+        }
+      });
+      c.newsList = newsList;
+      c.newsUrl = newsList[0]?.url || "";
 
       localStorage.setItem(STORAGE_KEY_CASES, JSON.stringify(cases));
       renderCurrentGroupView();
@@ -2086,7 +2221,7 @@
       // Sync updated cases to Firebase
       syncCasesToFirebase();
 
-      showToast(`${c.groupNumber}모둠 사례가 성공적으로 업데이트되었습니다.`, "success");
+      showToast(`${c.groupNumber}모둠 사례 및 기사 링크가 성공적으로 저장되었습니다.`, "success");
     }
 
     function resetCurrentCaseToDefault() {
